@@ -11,12 +11,13 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export const Route = createFileRoute("/admin/experience")({ component: AdminExperience });
 
 type Form = Omit<Experience, "id">;
-const empty: Form = { role: "", company: "", period: "", description: "", skills: [], sort_order: 0 };
+const empty: Form = { role: "", company: "", period: "", description: "", skills: [], sort_order: 0, kind: "work" };
 
 function AdminExperience() {
   const { data = [] } = useQuery(experienceQuery);
@@ -31,11 +32,12 @@ function AdminExperience() {
         <Button onClick={() => setEditing({ form: { ...empty, sort_order: data.length + 1 } })}><Plus className="h-4 w-4" /> Add role</Button>
       </div>
       <Table className="mt-6">
-        <TableHeader><TableRow><TableHead>#</TableHead><TableHead>Role</TableHead><TableHead>Company</TableHead><TableHead className="hidden md:table-cell">Period</TableHead><TableHead /></TableRow></TableHeader>
+        <TableHeader><TableRow><TableHead>#</TableHead><TableHead>Type</TableHead><TableHead>Role</TableHead><TableHead>Company</TableHead><TableHead className="hidden md:table-cell">Period</TableHead><TableHead /></TableRow></TableHeader>
         <TableBody>
           {data.map((x) => (
             <TableRow key={x.id}>
               <TableCell className="font-mono text-xs">{x.sort_order}</TableCell>
+              <TableCell className="font-mono text-xs uppercase text-muted-foreground">{x.kind === "education" ? "Edu" : "Work"}</TableCell>
               <TableCell>{x.role}</TableCell>
               <TableCell className="text-muted-foreground">{x.company}</TableCell>
               <TableCell className="hidden font-mono text-xs md:table-cell">{x.period}</TableCell>
@@ -53,9 +55,19 @@ function AdminExperience() {
           <DialogHeader><DialogTitle>{editing?.id ? "Edit role" : "New role"}</DialogTitle></DialogHeader>
           {editing && (
             <form onSubmit={(e) => { e.preventDefault(); save.mutate({ id: editing.id, values: editing.form }, { onSuccess: () => setEditing(null) }); }} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="kind">Type</Label>
+                <Select value={editing.form.kind} onValueChange={(v) => set({ kind: v })}>
+                  <SelectTrigger id="kind"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="work">Work experience</SelectItem>
+                    <SelectItem value="education">Education</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2"><Label htmlFor="role">Role</Label><Input id="role" required value={editing.form.role} onChange={(e) => set({ role: e.target.value })} /></div>
-                <div className="space-y-2"><Label htmlFor="company">Company</Label><Input id="company" required value={editing.form.company} onChange={(e) => set({ company: e.target.value })} /></div>
+                <div className="space-y-2"><Label htmlFor="role">{editing.form.kind === "education" ? "Degree / programme" : "Role"}</Label><Input id="role" required value={editing.form.role} onChange={(e) => set({ role: e.target.value })} /></div>
+                <div className="space-y-2"><Label htmlFor="company">{editing.form.kind === "education" ? "School" : "Company"}</Label><Input id="company" required value={editing.form.company} onChange={(e) => set({ company: e.target.value })} /></div>
               </div>
               <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
                 <div className="space-y-2"><Label htmlFor="period">Period</Label><Input id="period" placeholder="2023 — Present" value={editing.form.period} onChange={(e) => set({ period: e.target.value })} /></div>

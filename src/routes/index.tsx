@@ -25,7 +25,8 @@ export const Route = createFileRoute("/")({
 function Home() {
   const { data: p } = useSuspenseQuery(profileQuery);
   const { data: projects } = useSuspenseQuery(projectsQuery);
-  const { data: exp } = useSuspenseQuery(experienceQuery);
+  const { data: allExp } = useSuspenseQuery(experienceQuery);
+  const exp = allExp.filter((e) => e.kind !== "education");
   const current = exp[0];
   const icons: Record<string, typeof Github> = { GitHub: Github, LinkedIn: Linkedin };
 
