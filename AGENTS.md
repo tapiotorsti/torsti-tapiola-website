@@ -10,5 +10,5 @@
 <!-- LOVABLE:END -->
 
 ## Project rules
-- Portfolio content lives in `src/data/` behind async getters + queryOptions (`src/data/index.ts`); swap getters for a backend later without touching routes.
+- Projects, experience and skills live in Cloud tables, read via public server fns in `src/data/portfolio.functions.ts` and exposed as queryOptions in `src/data/index.ts`; profile stays static in `src/data/profile.ts`. Writes are admin-only (`has_role`) so signed-up visitors can't edit content.
 - Each portfolio section is its own route with its own head(); shared header/footer wrap `<Outlet />` in `__root.tsx`.
