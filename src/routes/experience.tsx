@@ -25,20 +25,20 @@ function ExperiencePage() {
         {data.map((e, i) => (
           <li key={e.id} className="reveal grid gap-4 border-b border-border py-10 md:grid-cols-12" style={{ animationDelay: `${i * 80}ms` }}>
             <p className="font-mono text-xs text-muted-foreground md:col-span-3">
-              {e.start} — <span className={e.end === "Present" ? "text-primary" : ""}>{e.end}</span>
+              <span className={e.period.includes("Present") ? "text-primary" : ""}>{e.period}</span>
             </p>
             <div className="md:col-span-9">
               <h2 className="text-2xl font-medium tracking-tight">{e.role}</h2>
-              <p className="mt-1 text-muted-foreground">{e.company} · <span className="font-mono text-xs">{e.context}</span></p>
+              <p className="mt-1 text-muted-foreground">{e.company}</p>
               <ul className="mt-6 space-y-3">
-                {e.impact.map((b) => (
+                {e.description.split("\n").filter(Boolean).map((b) => (
                   <li key={b} className="flex gap-3 text-sm leading-relaxed">
                     <span className="mt-2 h-px w-3 shrink-0 bg-primary" />
                     {b}
                   </li>
                 ))}
               </ul>
-              <div className="mt-6 flex flex-wrap gap-2">{e.tech.map((t) => <Tag key={t}>{t}</Tag>)}</div>
+              <div className="mt-6 flex flex-wrap gap-2">{e.skills.map((t) => <Tag key={t}>{t}</Tag>)}</div>
             </div>
           </li>
         ))}

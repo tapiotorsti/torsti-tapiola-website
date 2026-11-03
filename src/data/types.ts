@@ -12,34 +12,26 @@ export interface Experience {
   id: string;
   role: string;
   company: string;
-  context: string;
-  start: string;
-  end: string;
-  impact: string[];
-  tech: string[];
+  period: string;
+  description: string;
+  skills: string[];
+  sort_order: number;
 }
 
 export interface Project {
   id: string;
   title: string;
-  year: string;
+  slug: string;
   summary: string;
-  role: string;
-  highlight: string;
-  stack: string[];
-  liveUrl?: string;
-  repoUrl?: string;
-  caseStudy: {
-    problem: string;
-    approach: string;
-    architecture: string[];
-    metrics: { label: string; value: string }[];
-  };
+  content: string;
+  tech_stack: string[];
+  live_url: string | null;
+  github_url: string | null;
+  featured: boolean;
+  sort_order: number;
 }
 
 export interface SkillGroup {
-  id: string;
-  title: string;
-  description: string;
+  category: string;
   items: string[];
 }

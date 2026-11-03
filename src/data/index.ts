@@ -1,17 +1,24 @@
-// Data access layer. Each getter is async so it can be swapped for a
-// Lovable Cloud query later without touching components.
+// Data access layer: profile is static; projects, experience and skills come from Lovable Cloud.
 import { queryOptions } from "@tanstack/react-query";
 import { profile } from "./profile";
-import { experience } from "./experience";
-import { projects } from "./projects";
-import { skills } from "./skills";
+import { fetchExperience, fetchProjects, fetchSkills } from "./portfolio.functions";
+import type { SkillGroup } from "./types";
 
 export * from "./types";
 
 export const getProfile = async () => profile;
-export const getExperience = async () => experience;
-export const getProjects = async () => projects;
-export const getSkills = async () => skills;
+export const getExperience = () => fetchExperience();
+export const getProjects = () => fetchProjects();
+export const getSkills = async (): Promise<SkillGroup[]> => {
+  const rows = await fetchSkills();
+  const groups: SkillGroup[] = [];
+  for (const r of rows) {
+    let g = groups.find((x) => x.category === r.category);
+    if (!g) groups.push((g = { category: r.category, items: [] }));
+    g.items.push(r.name);
+  }
+  return groups;
+};
 
 export const profileQuery = queryOptions({ queryKey: ["profile"], queryFn: getProfile });
 export const experienceQuery = queryOptions({ queryKey: ["experience"], queryFn: getExperience });
