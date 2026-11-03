@@ -1,0 +1,1 @@
+ALTER TABLE public.experience ADD COLUMN kind text NOT NULL DEFAULT 'work' CHECK (kind IN ('work','education'));
