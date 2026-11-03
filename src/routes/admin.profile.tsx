@@ -18,6 +18,7 @@ const fields = [
   ["status", "Availability status"],
   ["location", "Location"],
   ["email", "Email"],
+  ["years_experience", "Years of experience"],
 ] as const;
 
 function AdminProfile() {

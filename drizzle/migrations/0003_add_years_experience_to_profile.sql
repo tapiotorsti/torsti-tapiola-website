@@ -1,0 +1,1 @@
+ALTER TABLE public.site_profile ADD COLUMN years_experience text NOT NULL DEFAULT '8+';

@@ -4,6 +4,7 @@ export interface Profile {
   tagline: string;
   location: string;
   status: string;
+  years_experience: string;
   email: string;
   socials: { label: string; href: string; handle: string }[];
 }

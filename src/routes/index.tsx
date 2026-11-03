@@ -58,7 +58,7 @@ function Home() {
         </div>
         <dl className="grid grid-cols-3 gap-px self-end border border-border bg-border md:col-span-3 md:grid-cols-1">
           {[
-            ["Years", "8+"],
+            ["Years", p.years_experience],
             ["Projects", String(projects.length).padStart(2, "0")],
             ["Roles", String(exp.length).padStart(2, "0")],
           ].map(([k, v]) => (

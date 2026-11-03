@@ -47,7 +47,7 @@ export const fetchSkills = createServerFn({ method: "GET" }).handler(async () =>
 export const fetchProfile = createServerFn({ method: "GET" }).handler(async () => {
   const { data, error } = await publicClient()
     .from("site_profile")
-    .select("name, role, tagline, location, status, email, socials")
+    .select("name, role, tagline, location, status, email, socials, years_experience")
     .eq("id", 1)
     .maybeSingle();
   if (error) throw new Error("Could not load profile");
