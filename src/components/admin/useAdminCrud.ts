@@ -12,7 +12,7 @@ export function useAdminCrud(table: Table, queryKey: string) {
     toast.success(msg);
   };
   const save = useMutation({
-    mutationFn: async ({ id, values }: { id?: string; values: Record<string, unknown> }) => {
+    mutationFn: async ({ id, values }: { id?: string | undefined; values: Record<string, unknown> }) => {
       const q = id
         ? supabase.from(table).update(values as never).eq("id", id)
         : supabase.from(table).insert(values as never);
