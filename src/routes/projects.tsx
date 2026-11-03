@@ -3,21 +3,24 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { ArrowUpRight, Github } from "lucide-react";
 import ReactMarkdown from "react-markdown";
-import { projectsQuery, type Project } from "@/data";
+import { loadSiteIdentity, pageTitle, projectsQuery, type Project } from "@/data";
 import { isSafeUrl } from "@/lib/utils";
 import { Page, SectionHeader, Tag } from "@/components/site/primitives";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/projects")({
-  head: () => ({
+  head: ({ loaderData }) => ({
     meta: [
-      { title: "Projects — Alex Lindqvist" },
+      { title: pageTitle("Projects", loaderData) },
       { name: "description", content: "Featured projects and case studies: architecture, stack and outcomes." },
-      { property: "og:title", content: "Projects — Alex Lindqvist" },
+      { property: "og:title", content: pageTitle("Projects", loaderData) },
       { property: "og:description", content: "Featured projects and case studies with architecture and outcomes." },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(projectsQuery),
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(projectsQuery);
+    return loadSiteIdentity(context.queryClient);
+  },
   component: ProjectsPage,
 });
 

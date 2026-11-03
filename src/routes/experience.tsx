@@ -1,18 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { experienceQuery, type Experience } from "@/data";
+import { experienceQuery, loadSiteIdentity, pageTitle, type Experience } from "@/data";
 import { Page, SectionHeader, Tag } from "@/components/site/primitives";
 
 export const Route = createFileRoute("/experience")({
-  head: () => ({
+  head: ({ loaderData }) => ({
     meta: [
-      { title: "Experience — Alex Lindqvist" },
-      { name: "description", content: "Roles, education, impact and technologies across Alex Lindqvist's engineering career." },
-      { property: "og:title", content: "Experience — Alex Lindqvist" },
-      { property: "og:description", content: "Roles, education, impact and technologies across an engineering career." },
+      { title: pageTitle("Experience", loaderData) },
+      { name: "description", content: "Work experience, education, impact and technologies." },
+      { property: "og:title", content: pageTitle("Experience", loaderData) },
+      { property: "og:description", content: "Work experience, education, impact and technologies." },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(experienceQuery),
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(experienceQuery);
+    return loadSiteIdentity(context.queryClient);
+  },
   component: ExperiencePage,
 });
 

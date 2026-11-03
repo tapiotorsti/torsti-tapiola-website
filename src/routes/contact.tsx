@@ -1,20 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowUpRight } from "lucide-react";
-import { profileQuery } from "@/data";
+import { loadSiteIdentity, pageTitle, profileQuery, siteName } from "@/data";
 import { Page, SectionHeader } from "@/components/site/primitives";
 import { isSafeUrl } from "@/lib/utils";
 
 export const Route = createFileRoute("/contact")({
-  head: () => ({
+  head: ({ loaderData }) => ({
     meta: [
-      { title: "Contact — Alex Lindqvist" },
-      { name: "description", content: "Get in touch with Alex Lindqvist for projects, roles or collaboration." },
-      { property: "og:title", content: "Contact — Alex Lindqvist" },
+      { title: pageTitle("Contact", loaderData) },
+      { name: "description", content: `Get in touch with ${siteName(loaderData)} for projects, roles or collaboration.` },
+      { property: "og:title", content: pageTitle("Contact", loaderData) },
       { property: "og:description", content: "Get in touch for projects, roles or collaboration." },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(profileQuery),
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(profileQuery);
+    return loadSiteIdentity(context.queryClient);
+  },
   component: ContactPage,
 });
 

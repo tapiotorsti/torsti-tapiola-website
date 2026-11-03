@@ -10,7 +10,7 @@ export const Route = createFileRoute("/admin_/login")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Admin sign in — Alex Lindqvist" },
+      { title: "Admin sign in" },
       { name: "description", content: "Private sign-in for the portfolio admin." },
       { property: "og:title", content: "Admin sign in" },
       { property: "og:description", content: "Private sign-in for the portfolio admin." },

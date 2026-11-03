@@ -1,25 +1,27 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowUpRight, Github, Linkedin, Mail } from "lucide-react";
-import { experienceQuery, profileQuery, projectsQuery } from "@/data";
+import { experienceQuery, loadSiteIdentity, pageTitle, profileQuery, projectsQuery, siteName } from "@/data";
 import { Page, Tag } from "@/components/site/primitives";
 import { isSafeUrl } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
+  head: ({ loaderData }) => ({
     meta: [
-      { title: "Alex Lindqvist — Senior Software Engineer" },
-      { name: "description", content: "Portfolio of Alex Lindqvist, a software engineer building fast, reliable web products." },
-      { property: "og:title", content: "Alex Lindqvist — Senior Software Engineer" },
-      { property: "og:description", content: "Selected work, experience and contact for Alex Lindqvist." },
+      { title: pageTitle("", loaderData) },
+      { name: "description", content: `Portfolio of ${siteName(loaderData)}: selected work, experience and contact.` },
+      { property: "og:title", content: pageTitle("", loaderData) },
+      { property: "og:description", content: `Selected work, experience and contact for ${siteName(loaderData)}.` },
     ],
   }),
-  loader: ({ context }) =>
-    Promise.all([
+  loader: async ({ context }) => {
+    await Promise.all([
       context.queryClient.ensureQueryData(profileQuery),
       context.queryClient.ensureQueryData(projectsQuery),
       context.queryClient.ensureQueryData(experienceQuery),
-    ]),
+    ]);
+    return loadSiteIdentity(context.queryClient);
+  },
   component: Home,
 });
 

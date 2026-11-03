@@ -16,6 +16,8 @@ import { SiteHeader, SiteFooter } from "../components/site/SiteHeader";
 import { useLocation } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { pageTitle } from "@/data";
+import { profile as fallbackProfile } from "@/data/profile";
 
 function NotFoundComponent() {
   return (
@@ -82,9 +84,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Alex Lindqvist — Software Engineer" },
-      { name: "description", content: "Developer portfolio of Alex Lindqvist." },
-      { name: "author", content: "Alex Lindqvist" },
+      { title: pageTitle("", undefined) },
+      { name: "description", content: `Developer portfolio of ${fallbackProfile.name}.` },
+      { name: "author", content: fallbackProfile.name },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

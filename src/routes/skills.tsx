@@ -1,18 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { skillsQuery } from "@/data";
+import { loadSiteIdentity, pageTitle, skillsQuery } from "@/data";
 import { Page, SectionHeader } from "@/components/site/primitives";
 
 export const Route = createFileRoute("/skills")({
-  head: () => ({
+  head: ({ loaderData }) => ({
     meta: [
-      { title: "Skills — Alex Lindqvist" },
+      { title: pageTitle("Skills", loaderData) },
       { name: "description", content: "Technical skills and focus areas across frontend, backend and DevOps." },
-      { property: "og:title", content: "Skills — Alex Lindqvist" },
+      { property: "og:title", content: pageTitle("Skills", loaderData) },
       { property: "og:description", content: "Technical skills and focus areas across frontend, backend and DevOps." },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(skillsQuery),
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(skillsQuery);
+    return loadSiteIdentity(context.queryClient);
+  },
   component: SkillsPage,
 });
 

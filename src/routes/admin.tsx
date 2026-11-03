@@ -8,7 +8,7 @@ export const Route = createFileRoute("/admin")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Admin — Alex Lindqvist" },
+      { title: "Portfolio admin" },
       { name: "description", content: "Manage portfolio projects, experience and skills." },
       { property: "og:title", content: "Portfolio admin" },
       { property: "og:description", content: "Manage portfolio content." },
