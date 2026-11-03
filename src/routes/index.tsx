@@ -46,7 +46,13 @@ function Home() {
           )}
           <h1 className="text-5xl font-medium tracking-tighter md:text-8xl">{p.name}</h1>
           {roleLine && <p className="mt-3 font-mono text-sm text-primary">{roleLine}</p>}
-          {p.tagline.trim() && <p className="mt-8 max-w-2xl text-lg text-muted-foreground md:text-xl">{p.tagline}</p>}
+          {p.tagline.trim() && (
+            <div className="mt-8 max-w-2xl space-y-4 text-lg text-muted-foreground md:text-xl">
+              {p.tagline.trim().split(/\n\s*\n/).map((para, i) => (
+                <p key={i} className="whitespace-pre-line">{para.trim()}</p>
+              ))}
+            </div>
+          )}
           <div className="mt-10 flex flex-wrap gap-3">
             {p.socials.filter((s) => isSafeUrl(s.href)).map((s) => {
               const Icon = icons[s.label] ?? ArrowUpRight;
