@@ -17,6 +17,7 @@ import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as SkillsRouteImport } from './routes/skills'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminExperienceRouteImport } from './routes/admin.experience'
+import { Route as AdminProfileRouteImport } from './routes/admin.profile'
 import { Route as AdminSkillsRouteImport } from './routes/admin.skills'
 import { Route as AdminLoginRouteImport } from './routes/admin_.login'
 
@@ -60,6 +61,11 @@ const AdminExperienceRoute = AdminExperienceRouteImport.update({
   path: '/experience',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminProfileRoute = AdminProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminSkillsRoute = AdminSkillsRouteImport.update({
   id: '/skills',
   path: '/skills',
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/projects': typeof ProjectsRoute
   '/skills': typeof SkillsRoute
   '/admin/experience': typeof AdminExperienceRoute
+  '/admin/profile': typeof AdminProfileRoute
   '/admin/skills': typeof AdminSkillsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/': typeof AdminIndexRoute
@@ -90,6 +97,7 @@ export interface FileRoutesByTo {
   '/projects': typeof ProjectsRoute
   '/skills': typeof SkillsRoute
   '/admin/experience': typeof AdminExperienceRoute
+  '/admin/profile': typeof AdminProfileRoute
   '/admin/skills': typeof AdminSkillsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin': typeof AdminIndexRoute
@@ -103,6 +111,7 @@ export interface FileRoutesById {
   '/projects': typeof ProjectsRoute
   '/skills': typeof SkillsRoute
   '/admin/experience': typeof AdminExperienceRoute
+  '/admin/profile': typeof AdminProfileRoute
   '/admin/skills': typeof AdminSkillsRoute
   '/admin_/login': typeof AdminLoginRoute
   '/admin/': typeof AdminIndexRoute
@@ -117,6 +126,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/skills'
     | '/admin/experience'
+    | '/admin/profile'
     | '/admin/skills'
     | '/admin/login'
     | '/admin/'
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/skills'
     | '/admin/experience'
+    | '/admin/profile'
     | '/admin/skills'
     | '/admin/login'
     | '/admin'
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/skills'
     | '/admin/experience'
+    | '/admin/profile'
     | '/admin/skills'
     | '/admin_/login'
     | '/admin/'
@@ -213,6 +225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminExperienceRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/profile': {
+      id: '/admin/profile'
+      path: '/profile'
+      fullPath: '/admin/profile'
+      preLoaderRoute: typeof AdminProfileRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/skills': {
       id: '/admin/skills'
       path: '/skills'
@@ -232,12 +251,14 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminExperienceRoute: typeof AdminExperienceRoute
+  AdminProfileRoute: typeof AdminProfileRoute
   AdminSkillsRoute: typeof AdminSkillsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminExperienceRoute: AdminExperienceRoute,
+  AdminProfileRoute: AdminProfileRoute,
   AdminSkillsRoute: AdminSkillsRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
