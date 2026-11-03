@@ -97,6 +97,7 @@ export type Database = {
           status: string
           tagline: string
           updated_at: string
+          years_experience: string
         }
         Insert: {
           email?: string
@@ -108,6 +109,7 @@ export type Database = {
           status?: string
           tagline?: string
           updated_at?: string
+          years_experience?: string
         }
         Update: {
           email?: string
@@ -119,6 +121,7 @@ export type Database = {
           status?: string
           tagline?: string
           updated_at?: string
+          years_experience?: string
         }
         Relationships: []
       }
