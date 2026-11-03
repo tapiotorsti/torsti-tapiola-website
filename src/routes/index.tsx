@@ -73,10 +73,10 @@ function Home() {
       <section className="grid gap-8 py-16 md:grid-cols-12">
         <h2 className="font-mono text-xs text-primary md:col-span-3">Selected work /</h2>
         <ul className="md:col-span-9">
-          {projects.slice(0, 3).map((pr) => (
+          {projects.filter((x) => x.featured).slice(0, 3).map((pr, i) => (
             <li key={pr.id}>
               <Link to="/projects" className="group grid grid-cols-12 items-baseline gap-4 border-b border-border py-5">
-                <span className="col-span-2 font-mono text-xs text-muted-foreground">{pr.year}</span>
+                <span className="col-span-2 font-mono text-xs text-muted-foreground">{String(i + 1).padStart(2, "0")}</span>
                 <span className="col-span-10 text-xl group-hover:text-primary md:col-span-4">{pr.title}</span>
                 <span className="col-span-12 text-sm text-muted-foreground md:col-span-5">{pr.summary}</span>
                 <ArrowUpRight className="hidden h-4 w-4 text-muted-foreground group-hover:text-primary md:col-span-1 md:block md:justify-self-end" />
@@ -90,7 +90,7 @@ function Home() {
         <h2 className="font-mono text-xs text-primary md:col-span-3">Currently /</h2>
         <div className="md:col-span-9">
           {current && <p className="text-xl">{current.role} at {current.company}</p>}
-          <div className="mt-4 flex flex-wrap gap-2">{current?.tech.map((t) => <Tag key={t}>{t}</Tag>)}</div>
+          <div className="mt-4 flex flex-wrap gap-2">{current?.skills.map((t) => <Tag key={t}>{t}</Tag>)}</div>
           <Link to="/experience" className="mt-6 inline-block font-mono text-xs text-muted-foreground hover:text-primary">
             Full experience →
           </Link>

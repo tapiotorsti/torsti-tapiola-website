@@ -23,10 +23,9 @@ function SkillsPage() {
       <SectionHeader index="03" title="Skills & focus" intro="The tools I reach for, grouped by where they live in the stack." />
       <div className="grid md:grid-cols-2">
         {data.map((g, i) => (
-          <section key={g.id} className="reveal border-b border-border py-10 md:odd:border-r md:odd:pr-10 md:even:pl-10" style={{ animationDelay: `${i * 70}ms` }}>
+          <section key={g.category} className="reveal border-b border-border py-10 md:odd:border-r md:odd:pr-10 md:even:pl-10" style={{ animationDelay: `${i * 70}ms` }}>
             <p className="font-mono text-xs text-primary">{String(i + 1).padStart(2, "0")}</p>
-            <h2 className="mt-3 text-2xl font-medium tracking-tight">{g.title}</h2>
-            <p className="mt-2 text-sm text-muted-foreground">{g.description}</p>
+            <h2 className="mt-3 text-2xl font-medium tracking-tight">{g.category}</h2>
             <ul className="mt-6 grid grid-cols-2 gap-x-6 font-mono text-sm">
               {g.items.map((s) => (
                 <li key={s} className="border-b border-border py-2">{s}</li>
