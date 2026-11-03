@@ -5,6 +5,7 @@ import { Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { profileQuery, type Profile } from "@/data";
 import { supabase } from "@/integrations/supabase/client";
+import { isSafeUrl } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,7 +46,12 @@ function AdminProfile() {
   return (
     <section className="max-w-2xl">
       <h1 className="text-2xl font-medium tracking-tight">Profile</h1>
-      <form className="mt-6 space-y-5" onSubmit={(e) => { e.preventDefault(); save.mutate(form); }}>
+      <form className="mt-6 space-y-5" onSubmit={(e) => {
+        e.preventDefault();
+        const bad = form.socials.find((s) => !isSafeUrl(s.href));
+        if (bad) { toast.error(`Social link URL must start with https:// — ${bad.label || bad.href}`); return; }
+        save.mutate(form);
+      }}>
         <div className="grid gap-4 sm:grid-cols-2">
           {fields.map(([k, label]) => (
             <div key={k} className="space-y-1.5">

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ArrowUpRight, Github } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { projectsQuery, type Project } from "@/data";
+import { isSafeUrl } from "@/lib/utils";
 import { Page, SectionHeader, Tag } from "@/components/site/primitives";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 
@@ -23,13 +24,13 @@ export const Route = createFileRoute("/projects")({
 function Links({ p }: { p: Project }) {
   return (
     <div className="flex gap-4 font-mono text-xs">
-      {p.live_url && (
+      {isSafeUrl(p.live_url) && (
         <a href={p.live_url} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}
           className="inline-flex items-center gap-1 text-muted-foreground hover:text-primary">
           Live <ArrowUpRight className="h-3 w-3" />
         </a>
       )}
-      {p.github_url && (
+      {isSafeUrl(p.github_url) && (
         <a href={p.github_url} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}
           className="inline-flex items-center gap-1 text-muted-foreground hover:text-primary">
           <Github className="h-3 w-3" /> Repo

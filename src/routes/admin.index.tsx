@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Pencil, Plus } from "lucide-react";
+import { toast } from "sonner";
+import { isSafeUrl } from "@/lib/utils";
 import { projectsQuery, type Project } from "@/data";
 import { useAdminCrud } from "@/components/admin/useAdminCrud";
 import { TagInput } from "@/components/admin/TagInput";
@@ -30,6 +32,8 @@ function AdminProjects() {
     e.preventDefault();
     if (!editing) return;
     const f = editing.form;
+    const badUrl = [f.live_url, f.github_url].find((u) => u && !isSafeUrl(u));
+    if (badUrl) { toast.error(`URL must start with https:// — ${badUrl}`); return; }
     save.mutate(
       { id: editing.id, values: { ...f, slug: f.slug || slugify(f.title), live_url: f.live_url || null, github_url: f.github_url || null } },
       { onSuccess: () => setEditing(null) },

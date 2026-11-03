@@ -3,6 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowUpRight, Github, Linkedin, Mail } from "lucide-react";
 import { experienceQuery, profileQuery, projectsQuery } from "@/data";
 import { Page, Tag } from "@/components/site/primitives";
+import { isSafeUrl } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -42,7 +43,7 @@ function Home() {
           <p className="mt-3 font-mono text-sm text-primary">{p.role} · {p.location}</p>
           <p className="mt-8 max-w-2xl text-lg text-muted-foreground md:text-xl">{p.tagline}</p>
           <div className="mt-10 flex flex-wrap gap-3">
-            {p.socials.map((s) => {
+            {p.socials.filter((s) => isSafeUrl(s.href)).map((s) => {
               const Icon = icons[s.label] ?? ArrowUpRight;
               return (
                 <a key={s.label} href={s.href} target="_blank" rel="noreferrer"

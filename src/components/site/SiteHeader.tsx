@@ -5,6 +5,7 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 import { useQuery } from "@tanstack/react-query";
 import { profileQuery } from "@/data";
 import { profile as fallback } from "@/data/profile";
+import { isSafeUrl } from "@/lib/utils";
 
 const nav = [
   { to: "/experience", label: "Experience", n: "01" },
@@ -70,7 +71,7 @@ export function SiteFooter() {
         <p>© {new Date().getFullYear()} {profile.name} — {profile.location}</p>
         <div className="flex gap-6">
           <a href={`mailto:${profile.email}`} className="hover:text-foreground">Email</a>
-          {profile.socials.map((s) => (
+          {profile.socials.filter((s) => isSafeUrl(s.href)).map((s) => (
             <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="hover:text-foreground">
               {s.label}
             </a>

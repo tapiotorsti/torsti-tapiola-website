@@ -22,7 +22,6 @@ export const Route = createFileRoute("/admin_/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"in" | "up">("in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -30,26 +29,16 @@ function LoginPage() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
-    if (mode === "in") {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      setBusy(false);
-      if (error) { toast.error(error.message); return; }
-      navigate({ to: "/admin", replace: true });
-    } else {
-      const { error } = await supabase.auth.signUp({
-        email, password, options: { emailRedirectTo: `${window.location.origin}/admin/login` },
-      });
-      setBusy(false);
-      if (error) { toast.error(error.message); return; }
-      toast.success("Check your email to confirm your account.");
-      setMode("in");
-    }
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setBusy(false);
+    if (error) { toast.error("Sign-in failed. Check your email and password."); return; }
+    navigate({ to: "/admin", replace: true });
   }
 
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-5">
       <p className="font-mono text-xs text-primary">admin /</p>
-      <h1 className="mt-2 text-3xl font-medium tracking-tight">{mode === "in" ? "Sign in" : "Create account"}</h1>
+      <h1 className="mt-2 text-3xl font-medium tracking-tight">Sign in</h1>
       <form onSubmit={submit} className="mt-8 space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
@@ -59,12 +48,8 @@ function LoginPage() {
           <Label htmlFor="password">Password</Label>
           <Input id="password" type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
         </div>
-        <Button type="submit" className="w-full" disabled={busy}>{busy ? "…" : mode === "in" ? "Sign in" : "Create account"}</Button>
+        <Button type="submit" className="w-full" disabled={busy}>{busy ? "…" : "Sign in"}</Button>
       </form>
-      <button type="button" onClick={() => setMode(mode === "in" ? "up" : "in")}
-        className="mt-6 font-mono text-xs text-muted-foreground hover:text-primary">
-        {mode === "in" ? "No account yet? Create one" : "Have an account? Sign in"}
-      </button>
     </main>
   );
 }

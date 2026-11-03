@@ -3,6 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowUpRight } from "lucide-react";
 import { profileQuery } from "@/data";
 import { Page, SectionHeader } from "@/components/site/primitives";
+import { isSafeUrl } from "@/lib/utils";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -27,7 +28,7 @@ function ContactPage() {
         <ArrowUpRight className="ml-2 inline h-8 w-8 transition-transform group-hover:-translate-y-1 group-hover:translate-x-1 md:h-12 md:w-12" />
       </a>
       <ul className="mt-16 border-t border-border">
-        {p.socials.map((s) => (
+        {p.socials.filter((s) => isSafeUrl(s.href)).map((s) => (
           <li key={s.label}>
             <a href={s.href} target="_blank" rel="noreferrer" className="group grid grid-cols-12 items-baseline border-b border-border py-5">
               <span className="col-span-4 font-mono text-xs text-muted-foreground md:col-span-3">{s.label}</span>
