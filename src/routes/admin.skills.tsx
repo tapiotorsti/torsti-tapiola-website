@@ -59,7 +59,7 @@ function AdminSkills() {
                 <Label htmlFor="category">Category</Label>
                 {!newCat && categories.length > 0 ? (
                   <Select
-                    value={categories.includes(editing.form.category) ? editing.form.category : undefined}
+                    value={categories.includes(editing.form.category) ? editing.form.category : ""}
                     onValueChange={(v) => {
                       if (v === NEW) { setNewCat(true); set({ category: "" }); }
                       else set({ category: v });
