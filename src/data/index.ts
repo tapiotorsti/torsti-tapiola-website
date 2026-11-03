@@ -24,3 +24,5 @@ export const profileQuery = queryOptions({ queryKey: ["profile"], queryFn: getPr
 export const experienceQuery = queryOptions({ queryKey: ["experience"], queryFn: getExperience });
 export const projectsQuery = queryOptions({ queryKey: ["projects"], queryFn: getProjects });
 export const skillsQuery = queryOptions({ queryKey: ["skills"], queryFn: getSkills });
+// Flat rows for the admin table; shares the "skills" key prefix so invalidation refreshes both.
+export const skillRowsQuery = queryOptions({ queryKey: ["skills", "rows"], queryFn: () => fetchSkills() });
