@@ -1,35 +1,33 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { experienceQuery } from "@/data";
+import { experienceQuery, type Experience } from "@/data";
 import { Page, SectionHeader, Tag } from "@/components/site/primitives";
 
 export const Route = createFileRoute("/experience")({
   head: () => ({
     meta: [
       { title: "Experience — Alex Lindqvist" },
-      { name: "description", content: "Roles, impact and technologies across Alex Lindqvist's engineering career." },
+      { name: "description", content: "Roles, education, impact and technologies across Alex Lindqvist's engineering career." },
       { property: "og:title", content: "Experience — Alex Lindqvist" },
-      { property: "og:description", content: "Roles, impact and technologies across an engineering career." },
+      { property: "og:description", content: "Roles, education, impact and technologies across an engineering career." },
     ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(experienceQuery),
   component: ExperiencePage,
 });
 
-function ExperiencePage() {
-  const { data } = useSuspenseQuery(experienceQuery);
+function EntryList({ items }: { items: Experience[] }) {
   return (
-    <Page>
-      <SectionHeader index="01" title="Experience" intro="Where I've worked and what changed because I was there." />
-      <ol>
-        {data.map((e, i) => (
-          <li key={e.id} className="reveal grid gap-4 border-b border-border py-10 md:grid-cols-12" style={{ animationDelay: `${i * 80}ms` }}>
-            <p className="font-mono text-xs text-muted-foreground md:col-span-3">
-              <span className={e.period.includes("Present") ? "text-primary" : ""}>{e.period}</span>
-            </p>
-            <div className="md:col-span-9">
-              <h2 className="text-2xl font-medium tracking-tight">{e.role}</h2>
-              <p className="mt-1 text-muted-foreground">{e.company}</p>
+    <ol>
+      {items.map((e, i) => (
+        <li key={e.id} className="reveal grid gap-4 border-b border-border py-10 md:grid-cols-12" style={{ animationDelay: `${i * 80}ms` }}>
+          <p className="font-mono text-xs text-muted-foreground md:col-span-3">
+            <span className={e.period.includes("Present") ? "text-primary" : ""}>{e.period}</span>
+          </p>
+          <div className="md:col-span-9">
+            <h2 className="text-2xl font-medium tracking-tight">{e.role}</h2>
+            <p className="mt-1 text-muted-foreground">{e.company}</p>
+            {e.description.trim() && (
               <ul className="mt-6 space-y-3">
                 {e.description.split("\n").filter(Boolean).map((b) => (
                   <li key={b} className="flex gap-3 text-sm leading-relaxed">
@@ -38,11 +36,29 @@ function ExperiencePage() {
                   </li>
                 ))}
               </ul>
-              <div className="mt-6 flex flex-wrap gap-2">{e.skills.map((t) => <Tag key={t}>{t}</Tag>)}</div>
-            </div>
-          </li>
-        ))}
-      </ol>
+            )}
+            {e.skills.length > 0 && <div className="mt-6 flex flex-wrap gap-2">{e.skills.map((t) => <Tag key={t}>{t}</Tag>)}</div>}
+          </div>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function ExperiencePage() {
+  const { data } = useSuspenseQuery(experienceQuery);
+  const work = data.filter((e) => e.kind !== "education");
+  const education = data.filter((e) => e.kind === "education");
+  return (
+    <Page>
+      <SectionHeader index="01" title="Experience" intro="Where I've worked and what changed because I was there." />
+      <EntryList items={work} />
+      {education.length > 0 && (
+        <div className="mt-20">
+          <h2 className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Education</h2>
+          <EntryList items={education} />
+        </div>
+      )}
     </Page>
   );
 }

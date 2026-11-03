@@ -29,7 +29,7 @@ export const fetchProjects = createServerFn({ method: "GET" }).handler(async () 
 export const fetchExperience = createServerFn({ method: "GET" }).handler(async () => {
   const { data, error } = await publicClient()
     .from("experience")
-    .select("id, role, company, period, description, skills, sort_order")
+    .select("id, role, company, period, description, skills, sort_order, kind")
     .order("sort_order");
   if (error) throw new Error("Could not load experience");
   return data;

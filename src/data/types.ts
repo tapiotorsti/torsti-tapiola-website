@@ -17,6 +17,7 @@ export interface Experience {
   description: string;
   skills: string[];
   sort_order: number;
+  kind: string;
 }
 
 export interface Project {

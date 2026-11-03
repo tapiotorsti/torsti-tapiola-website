@@ -19,6 +19,7 @@ export type Database = {
           company: string
           description: string
           id: string
+          kind: string
           period: string
           role: string
           skills: string[]
@@ -28,6 +29,7 @@ export type Database = {
           company: string
           description?: string
           id?: string
+          kind?: string
           period?: string
           role: string
           skills?: string[]
@@ -37,6 +39,7 @@ export type Database = {
           company?: string
           description?: string
           id?: string
+          kind?: string
           period?: string
           role?: string
           skills?: string[]
