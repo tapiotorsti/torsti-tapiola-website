@@ -61,9 +61,8 @@ function ProjectsPage() {
             className="reveal group flex cursor-pointer flex-col bg-background p-6 transition-colors hover:bg-card md:p-8"
             style={{ animationDelay: `${i * 70}ms` }}
           >
-            <div className="flex items-center justify-between font-mono text-xs text-muted-foreground">
+            <div className="font-mono text-xs text-muted-foreground">
               <span>{String(i + 1).padStart(2, "0")}</span>
-              {p.featured && <span className="text-primary">Featured</span>}
             </div>
             <h2 className="mt-8 text-3xl font-medium tracking-tight group-hover:text-primary">{p.title}</h2>
             <p className="mt-3 text-muted-foreground">{p.summary}</p>

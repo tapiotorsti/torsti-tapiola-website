@@ -54,7 +54,7 @@ function ExperiencePage() {
   const education = data.filter((e) => e.kind === "education");
   return (
     <Page>
-      <SectionHeader index="01" title="Experience" intro="Where I've worked and what changed because I was there." />
+      <SectionHeader index="01" title="Experience" />
       <EntryList items={work} />
       {education.length > 0 && (
         <div className="mt-20">
