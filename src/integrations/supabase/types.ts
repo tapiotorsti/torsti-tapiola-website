@@ -86,6 +86,42 @@ export type Database = {
         }
         Relationships: []
       }
+      site_profile: {
+        Row: {
+          email: string
+          id: number
+          location: string
+          name: string
+          role: string
+          socials: Json
+          status: string
+          tagline: string
+          updated_at: string
+        }
+        Insert: {
+          email?: string
+          id?: number
+          location?: string
+          name?: string
+          role?: string
+          socials?: Json
+          status?: string
+          tagline?: string
+          updated_at?: string
+        }
+        Update: {
+          email?: string
+          id?: number
+          location?: string
+          name?: string
+          role?: string
+          socials?: Json
+          status?: string
+          tagline?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       skills: {
         Row: {
           category: string
