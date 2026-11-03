@@ -2,7 +2,9 @@ import { Link } from "@tanstack/react-router";
 import { Menu } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { profile } from "@/data/profile";
+import { useQuery } from "@tanstack/react-query";
+import { profileQuery } from "@/data";
+import { profile as fallback } from "@/data/profile";
 
 const nav = [
   { to: "/experience", label: "Experience", n: "01" },
@@ -13,6 +15,7 @@ const nav = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const profile = useQuery(profileQuery).data ?? fallback;
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-sm">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-5 md:px-8">
@@ -60,6 +63,7 @@ export function SiteHeader() {
 }
 
 export function SiteFooter() {
+  const profile = useQuery(profileQuery).data ?? fallback;
   return (
     <footer className="border-t border-border">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-5 py-8 font-mono text-xs text-muted-foreground md:flex-row md:items-center md:justify-between md:px-8">

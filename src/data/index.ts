@@ -1,12 +1,16 @@
-// Data access layer: profile is static; projects, experience and skills come from Lovable Cloud.
+// Data access layer: profile, projects, experience and skills come from Lovable Cloud.
 import { queryOptions } from "@tanstack/react-query";
 import { profile } from "./profile";
-import { fetchExperience, fetchProjects, fetchSkills } from "./portfolio.functions";
-import type { SkillGroup } from "./types";
+import { fetchExperience, fetchProfile, fetchProjects, fetchSkills } from "./portfolio.functions";
+import type { Profile, SkillGroup } from "./types";
 
 export * from "./types";
 
-export const getProfile = async () => profile;
+export const getProfile = async (): Promise<Profile> => {
+  const row = await fetchProfile();
+  if (!row) return profile;
+  return { ...row, socials: (row.socials as Profile["socials"]) ?? [] };
+};
 export const getExperience = () => fetchExperience();
 export const getProjects = () => fetchProjects();
 export const getSkills = async (): Promise<SkillGroup[]> => {
