@@ -32,18 +32,21 @@ function Home() {
   const exp = allExp.filter((e) => e.kind !== "education");
   const current = exp[0];
   const icons: Record<string, typeof Github> = { GitHub: Github, LinkedIn: Linkedin };
+  const roleLine = [p.role, p.location].map((s) => s.trim()).filter(Boolean).join(" · ");
 
   return (
     <Page>
       <section className="reveal grid gap-10 border-b border-border pb-16 md:grid-cols-12 md:pb-24">
         <div className="md:col-span-9">
-          <span className="inline-flex items-center gap-2 border border-border px-2.5 py-1 font-mono text-xs text-muted-foreground">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
-            {p.status}
-          </span>
-          <h1 className="mt-8 text-5xl font-medium tracking-tighter md:text-8xl">{p.name}</h1>
-          <p className="mt-3 font-mono text-sm text-primary">{p.role} · {p.location}</p>
-          <p className="mt-8 max-w-2xl text-lg text-muted-foreground md:text-xl">{p.tagline}</p>
+          {p.status.trim() && (
+            <span className="mb-8 inline-flex items-center gap-2 border border-border px-2.5 py-1 font-mono text-xs text-muted-foreground">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
+              {p.status}
+            </span>
+          )}
+          <h1 className="text-5xl font-medium tracking-tighter md:text-8xl">{p.name}</h1>
+          {roleLine && <p className="mt-3 font-mono text-sm text-primary">{roleLine}</p>}
+          {p.tagline.trim() && <p className="mt-8 max-w-2xl text-lg text-muted-foreground md:text-xl">{p.tagline}</p>}
           <div className="mt-10 flex flex-wrap gap-3">
             {p.socials.filter((s) => isSafeUrl(s.href)).map((s) => {
               const Icon = icons[s.label] ?? ArrowUpRight;
@@ -54,10 +57,12 @@ function Home() {
                 </a>
               );
             })}
-            <a href={`mailto:${p.email}`}
-              className="inline-flex items-center gap-2 bg-primary px-4 py-2 text-sm text-primary-foreground transition-opacity hover:opacity-90">
-              <Mail className="h-4 w-4" /> {p.email}
-            </a>
+            {p.email.trim() && (
+              <a href={`mailto:${p.email}`}
+                className="inline-flex items-center gap-2 bg-primary px-4 py-2 text-sm text-primary-foreground transition-opacity hover:opacity-90">
+                <Mail className="h-4 w-4" /> {p.email}
+              </a>
+            )}
           </div>
         </div>
         <dl className="grid grid-cols-3 gap-px self-end border border-border bg-border md:col-span-3 md:grid-cols-1">
@@ -65,7 +70,7 @@ function Home() {
             ["Years", p.years_experience],
             ["Projects", String(projects.length).padStart(2, "0")],
             ["Roles", String(exp.length).padStart(2, "0")],
-          ].map(([k, v]) => (
+          ].filter(([, v]) => v?.trim()).map(([k, v]) => (
             <div key={k} className="bg-background p-4">
               <dt className="font-mono text-[10px] uppercase text-muted-foreground">{k}</dt>
               <dd className="mt-1 font-mono text-2xl">{v}</dd>

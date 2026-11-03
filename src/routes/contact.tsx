@@ -26,10 +26,12 @@ function ContactPage() {
   return (
     <Page>
       <SectionHeader index="04" title="Contact" intro="Have a project, role or idea? Email is the fastest way to reach me." />
-      <a href={`mailto:${p.email}`} className="reveal group mt-12 block break-all text-3xl font-medium tracking-tight hover:text-primary md:text-6xl">
-        {p.email}
-        <ArrowUpRight className="ml-2 inline h-8 w-8 transition-transform group-hover:-translate-y-1 group-hover:translate-x-1 md:h-12 md:w-12" />
-      </a>
+      {p.email.trim() && (
+        <a href={`mailto:${p.email}`} className="reveal group mt-12 block break-all text-3xl font-medium tracking-tight hover:text-primary md:text-6xl">
+          {p.email}
+          <ArrowUpRight className="ml-2 inline h-8 w-8 transition-transform group-hover:-translate-y-1 group-hover:translate-x-1 md:h-12 md:w-12" />
+        </a>
+      )}
       <ul className="mt-16 border-t border-border">
         {p.socials.filter((s) => isSafeUrl(s.href)).map((s) => (
           <li key={s.label}>

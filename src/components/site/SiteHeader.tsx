@@ -68,9 +68,9 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-border">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-5 py-8 font-mono text-xs text-muted-foreground md:flex-row md:items-center md:justify-between md:px-8">
-        <p>© {new Date().getFullYear()} {profile.name} — {profile.location}</p>
+        <p>© {new Date().getFullYear()} {profile.name}{profile.location.trim() && ` — ${profile.location}`}</p>
         <div className="flex gap-6">
-          <a href={`mailto:${profile.email}`} className="hover:text-foreground">Email</a>
+          {profile.email.trim() && <a href={`mailto:${profile.email}`} className="hover:text-foreground">Email</a>}
           {profile.socials.filter((s) => isSafeUrl(s.href)).map((s) => (
             <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="hover:text-foreground">
               {s.label}
