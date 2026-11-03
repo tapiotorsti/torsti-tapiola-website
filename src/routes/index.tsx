@@ -26,6 +26,7 @@ function Home() {
   const { data: p } = useSuspenseQuery(profileQuery);
   const { data: projects } = useSuspenseQuery(projectsQuery);
   const { data: exp } = useSuspenseQuery(experienceQuery);
+  const current = exp[0];
   const icons: Record<string, typeof Github> = { GitHub: Github, LinkedIn: Linkedin };
 
   return (
@@ -88,8 +89,8 @@ function Home() {
       <section className="grid gap-8 md:grid-cols-12">
         <h2 className="font-mono text-xs text-primary md:col-span-3">Currently /</h2>
         <div className="md:col-span-9">
-          <p className="text-xl">{exp[0].role} at {exp[0].company}</p>
-          <div className="mt-4 flex flex-wrap gap-2">{exp[0].tech.map((t) => <Tag key={t}>{t}</Tag>)}</div>
+          {current && <p className="text-xl">{current.role} at {current.company}</p>}
+          <div className="mt-4 flex flex-wrap gap-2">{current?.tech.map((t) => <Tag key={t}>{t}</Tag>)}</div>
           <Link to="/experience" className="mt-6 inline-block font-mono text-xs text-muted-foreground hover:text-primary">
             Full experience →
           </Link>

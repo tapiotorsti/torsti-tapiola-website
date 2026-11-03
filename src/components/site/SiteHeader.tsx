@@ -17,7 +17,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-sm">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-5 md:px-8">
         <Link to="/" className="font-mono text-sm tracking-tight">
-          {profile.name.split(" ")[0].toLowerCase()}
+          {(profile.name.split(" ")[0] ?? profile.name).toLowerCase()}
           <span className="text-primary">.dev</span>
         </Link>
         <nav className="hidden gap-8 md:flex">
