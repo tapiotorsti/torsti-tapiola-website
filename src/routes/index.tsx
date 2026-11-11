@@ -1,27 +1,60 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery, type QueryClient } from "@tanstack/react-query";
 import { ArrowUpRight, Github, Linkedin, Mail } from "lucide-react";
-import { experienceQuery, loadSiteIdentity, pageTitle, profileQuery, projectsQuery, siteName } from "@/data";
+import {
+  experienceQuery,
+  loadSiteIdentity,
+  pageTitle,
+  profileQuery,
+  projectsQuery,
+  siteName,
+} from "@/data";
 import { Page, Tag } from "@/components/site/primitives";
 import { isSafeUrl } from "@/lib/utils";
+import { jsonLd, personJsonLd, seo } from "@/lib/seo";
+
+// Loader runs first so head() can use the profile for the description and JSON-LD.
+async function loadHome(queryClient: QueryClient) {
+  const [p] = await Promise.all([
+    queryClient.ensureQueryData(profileQuery),
+    queryClient.ensureQueryData(projectsQuery),
+    queryClient.ensureQueryData(experienceQuery),
+  ]);
+  const site = await loadSiteIdentity(queryClient);
+  return {
+    ...site,
+    tagline: p.tagline,
+    location: p.location,
+    sameAs: p.socials.filter((s) => isSafeUrl(s.href)).map((s) => s.href),
+  };
+}
+
+function homeHead(data: Awaited<ReturnType<typeof loadHome>> | undefined) {
+  const name = siteName(data);
+  const description =
+    data?.tagline?.trim() || `Portfolio of ${name}: selected work, experience and contact.`;
+  return {
+    ...seo({ title: pageTitle("", data), description, path: "/", siteName: name }),
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: jsonLd(
+          personJsonLd({
+            name,
+            role: data?.role,
+            tagline: data?.tagline,
+            location: data?.location,
+            sameAs: data?.sameAs,
+          }),
+        ),
+      },
+    ],
+  };
+}
 
 export const Route = createFileRoute("/")({
-  head: ({ loaderData }) => ({
-    meta: [
-      { title: pageTitle("", loaderData) },
-      { name: "description", content: `Portfolio of ${siteName(loaderData)}: selected work, experience and contact.` },
-      { property: "og:title", content: pageTitle("", loaderData) },
-      { property: "og:description", content: `Selected work, experience and contact for ${siteName(loaderData)}.` },
-    ],
-  }),
-  loader: async ({ context }) => {
-    await Promise.all([
-      context.queryClient.ensureQueryData(profileQuery),
-      context.queryClient.ensureQueryData(projectsQuery),
-      context.queryClient.ensureQueryData(experienceQuery),
-    ]);
-    return loadSiteIdentity(context.queryClient);
-  },
+  loader: ({ context }) => loadHome(context.queryClient),
+  head: ({ loaderData }) => homeHead(loaderData),
   component: Home,
 });
 
@@ -32,7 +65,10 @@ function Home() {
   const exp = allExp.filter((e) => e.kind !== "education");
   const current = exp[0];
   const icons: Record<string, typeof Github> = { GitHub: Github, LinkedIn: Linkedin };
-  const roleLine = [p.role, p.location].map((s) => s.trim()).filter(Boolean).join(" · ");
+  const roleLine = [p.role, p.location]
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <Page>
@@ -48,24 +84,38 @@ function Home() {
           {roleLine && <p className="mt-3 font-mono text-sm text-primary">{roleLine}</p>}
           {p.tagline.trim() && (
             <div className="mt-8 max-w-2xl space-y-4 text-lg text-muted-foreground md:text-xl">
-              {p.tagline.trim().split(/\n\s*\n/).map((para, i) => (
-                <p key={i} className="whitespace-pre-line">{para.trim()}</p>
-              ))}
+              {p.tagline
+                .trim()
+                .split(/\n\s*\n/)
+                .map((para, i) => (
+                  <p key={i} className="whitespace-pre-line">
+                    {para.trim()}
+                  </p>
+                ))}
             </div>
           )}
           <div className="mt-10 flex flex-wrap gap-3">
-            {p.socials.filter((s) => isSafeUrl(s.href)).map((s) => {
-              const Icon = icons[s.label] ?? ArrowUpRight;
-              return (
-                <a key={s.label} href={s.href} target="_blank" rel="noreferrer"
-                  className="inline-flex items-center gap-2 border border-border px-4 py-2 text-sm transition-colors hover:border-primary hover:text-primary">
-                  <Icon className="h-4 w-4" /> {s.label}
-                </a>
-              );
-            })}
+            {p.socials
+              .filter((s) => isSafeUrl(s.href))
+              .map((s) => {
+                const Icon = icons[s.label] ?? ArrowUpRight;
+                return (
+                  <a
+                    key={s.label}
+                    href={s.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 border border-border px-4 py-2 text-sm transition-colors hover:border-primary hover:text-primary"
+                  >
+                    <Icon className="h-4 w-4" /> {s.label}
+                  </a>
+                );
+              })}
             {p.email.trim() && (
-              <a href={`mailto:${p.email}`}
-                className="inline-flex items-center gap-2 bg-primary px-4 py-2 text-sm text-primary-foreground transition-opacity hover:opacity-90">
+              <a
+                href={`mailto:${p.email}`}
+                className="inline-flex items-center gap-2 bg-primary px-4 py-2 text-sm text-primary-foreground transition-opacity hover:opacity-90"
+              >
                 <Mail className="h-4 w-4" /> {p.email}
               </a>
             )}
@@ -76,37 +126,62 @@ function Home() {
             ["Years", p.years_experience],
             ["Projects", String(projects.length).padStart(2, "0")],
             ["Roles", String(exp.length).padStart(2, "0")],
-          ].filter(([, v]) => v?.trim()).map(([k, v]) => (
-            <div key={k} className="bg-background p-4">
-              <dt className="font-mono text-[10px] uppercase text-muted-foreground">{k}</dt>
-              <dd className="mt-1 font-mono text-2xl">{v}</dd>
-            </div>
-          ))}
+          ]
+            .filter(([, v]) => v?.trim())
+            .map(([k, v]) => (
+              <div key={k} className="bg-background p-4">
+                <dt className="font-mono text-[10px] uppercase text-muted-foreground">{k}</dt>
+                <dd className="mt-1 font-mono text-2xl">{v}</dd>
+              </div>
+            ))}
         </dl>
       </section>
 
       <section className="grid gap-8 py-16 md:grid-cols-12">
         <h2 className="font-mono text-xs text-primary md:col-span-3">Selected work /</h2>
         <ul className="md:col-span-9">
-          {projects.filter((x) => x.featured).slice(0, 3).map((pr, i) => (
-            <li key={pr.id}>
-              <Link to="/projects" className="group grid grid-cols-12 items-baseline gap-4 border-b border-border py-5">
-                <span className="col-span-2 font-mono text-xs text-muted-foreground">{String(i + 1).padStart(2, "0")}</span>
-                <span className="col-span-10 text-xl group-hover:text-primary md:col-span-4">{pr.title}</span>
-                <span className="col-span-12 text-sm text-muted-foreground md:col-span-5">{pr.summary}</span>
-                <ArrowUpRight className="hidden h-4 w-4 text-muted-foreground group-hover:text-primary md:col-span-1 md:block md:justify-self-end" />
-              </Link>
-            </li>
-          ))}
+          {projects
+            .filter((x) => x.featured)
+            .slice(0, 3)
+            .map((pr, i) => (
+              <li key={pr.id}>
+                <Link
+                  to="/projects"
+                  className="group grid grid-cols-12 items-baseline gap-4 border-b border-border py-5"
+                >
+                  <span className="col-span-2 font-mono text-xs text-muted-foreground">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="col-span-10 text-xl group-hover:text-primary md:col-span-4">
+                    {pr.title}
+                  </span>
+                  <span className="col-span-12 text-sm text-muted-foreground md:col-span-5">
+                    {pr.summary}
+                  </span>
+                  <ArrowUpRight className="hidden h-4 w-4 text-muted-foreground group-hover:text-primary md:col-span-1 md:block md:justify-self-end" />
+                </Link>
+              </li>
+            ))}
         </ul>
       </section>
 
       <section className="grid gap-8 md:grid-cols-12">
         <h2 className="font-mono text-xs text-primary md:col-span-3">Currently /</h2>
         <div className="md:col-span-9">
-          {current && <p className="text-xl">{current.role} at {current.company}</p>}
-          <div className="mt-4 flex flex-wrap gap-2">{current?.skills.map((t) => <Tag key={t}>{t}</Tag>)}</div>
-          <Link to="/experience" className="mt-6 inline-block font-mono text-xs text-muted-foreground hover:text-primary">
+          {current && (
+            <p className="text-xl">
+              {current.role} at {current.company}
+            </p>
+          )}
+          <div className="mt-4 flex flex-wrap gap-2">
+            {current?.skills.map((t) => (
+              <Tag key={t}>{t}</Tag>
+            ))}
+          </div>
+          <Link
+            to="/experience"
+            className="mt-6 inline-block font-mono text-xs text-muted-foreground hover:text-primary"
+          >
             Full experience →
           </Link>
         </div>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Public pages only. Keep in sync with the public routes in src/routes/. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://torsti.dev/</loc></url>
+  <url><loc>https://torsti.dev/experience</loc></url>
+  <url><loc>https://torsti.dev/projects</loc></url>
+  <url><loc>https://torsti.dev/skills</loc></url>
+  <url><loc>https://torsti.dev/contact</loc></url>
+</urlset>

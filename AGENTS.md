@@ -41,7 +41,7 @@ and keep those clean. Do not reformat the whole repo in an unrelated change.
 - Site content (projects, experience, skills, profile text) is data, not code. Do not hard-code content into components or edit `src/data/profile.ts` to change what the live site shows; it is changed in the admin UI.
 
 ## Conventions
-- Routing is file-based in `src/routes/` (read `src/routes/README.md`). Every public route has `head()` with title, description, `og:title` and `og:description`, built with `pageTitle()` and `loadSiteIdentity()`.
+- Routing is file-based in `src/routes/` (read `src/routes/README.md`). Every public route builds its `head()` with `seo()` from `src/lib/seo.ts` (title via `pageTitle()`, plus description, canonical URL, Open Graph and Twitter tags). Define `loader` before `head` so `loaderData` is typed. New public pages are also added to `public/sitemap.xml`.
 - Data flow for a public page: server fn in `portfolio.functions.ts` → `queryOptions` in `src/data/index.ts` → `context.queryClient.ensureQueryData(...)` in the route `loader` → `useSuspenseQuery` in the component.
 - Server fns select explicit column lists (never `*`) and throw a generic `Error` message, not the raw Supabase error.
 - Shared types live in `src/data/types.ts`. Use the `@/` import alias for `src/`.

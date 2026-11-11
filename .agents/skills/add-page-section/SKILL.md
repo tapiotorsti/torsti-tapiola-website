@@ -21,24 +21,25 @@ every part of the pattern.
    ```tsx
    import { createFileRoute } from "@tanstack/react-router";
    import { useSuspenseQuery } from "@tanstack/react-query";
-   import { loadSiteIdentity, pageTitle, thingsQuery } from "@/data";
+   import { loadSiteIdentity, pageTitle, siteName, thingsQuery } from "@/data";
    import { Page, SectionHeader } from "@/components/site/primitives";
-
-   const DESCRIPTION = "One sentence that describes this page for search and link previews.";
+   import { seo } from "@/lib/seo";
 
    export const Route = createFileRoute("/things")({
-     head: ({ loaderData }) => ({
-       meta: [
-         { title: pageTitle("Things", loaderData) },
-         { name: "description", content: DESCRIPTION },
-         { property: "og:title", content: pageTitle("Things", loaderData) },
-         { property: "og:description", content: DESCRIPTION },
-       ],
-     }),
+     // loader before head, so loaderData is typed in head()
      loader: async ({ context }) => {
        await context.queryClient.ensureQueryData(thingsQuery);
        return loadSiteIdentity(context.queryClient);
      },
+     // seo() adds description, canonical, Open Graph and Twitter tags.
+     // Write a specific 120–160 character description that names the person.
+     head: ({ loaderData }) =>
+       seo({
+         title: pageTitle("Things", loaderData),
+         description: `Things by ${siteName(loaderData)}: one specific sentence about this page.`,
+         path: "/things",
+         siteName: siteName(loaderData),
+       }),
      component: ThingsPage,
    });
 
@@ -52,6 +53,8 @@ every part of the pattern.
      );
    }
    ```
+
+   Add the page to `public/sitemap.xml` with a `<url><loc>https://torsti.dev/things</loc></url>` entry.
 
 3. **Navigation.** Add an entry to the nav array in
    `src/components/site/SiteHeader.tsx`, for example

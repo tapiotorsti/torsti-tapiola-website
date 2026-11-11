@@ -89,6 +89,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: `Developer portfolio of ${fallbackProfile.name}.` },
       { name: "author", content: fallbackProfile.name },
       { property: "og:type", content: "website" },
+      { property: "og:locale", content: "en_US" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
