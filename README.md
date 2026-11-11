@@ -4,6 +4,8 @@ Source code for my developer portfolio: a server-rendered React site where proje
 work experience, skills and profile details are stored in a Postgres database and
 edited through a private admin panel, so updating the site never needs a code change.
 
+**Live site: [torsti.dev](https://torsti.dev)**
+
 ## Features
 
 - **Portfolio sections as separate routes:** home, experience, projects (with
