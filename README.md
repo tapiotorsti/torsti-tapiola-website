@@ -178,15 +178,77 @@ and add a row for your user to `public.user_roles` with the role `admin`.
 | `bun run test` | Vitest test suite |
 | `bun run format` | Prettier |
 
-## Built with AI tools
+## How AI was used
 
-The project was started in [Lovable](https://lovable.dev) and developed further
-with AI coding agents. I made the architecture and security decisions, such as
-moving content into the database, restricting writes with RLS and removing the
-automatic admin grant, and I reviewed every change.
+AI tools wrote most of the code in this project. I directed the work and made
+the decisions, and I am responsible for the result, especially its security
+and architecture.
 
-The repository contains instructions for AI agents, so anyone who uses an agent
-to work on the code gets the same project rules:
+### Lovable: UI and foundation
+
+I wrote the brief: an editorial, minimal look, the page sections, the stack,
+and a data layer that could later move to a database. From it,
+[Lovable](https://lovable.dev) generated the first version:
+
+- TanStack Start app, layout and visual design
+- Supabase integration through Lovable Cloud
+- First admin panel
+
+Lovable also hosts the site.
+
+### Claude Code: finishing the work
+
+The rest was built with [Claude Code](https://claude.com/claude-code):
+
+- **Security:** security headers and a Content-Security-Policy; dependency
+  updates that fixed 27 of 29 known vulnerabilities.
+- **Page view counter:** migration, database function and admin stats page.
+- **SEO:** canonical URLs, a social share card, structured data and a sitemap.
+- **Accessibility:** fixes from a WCAG 2.2 AA review.
+- **Tests and documentation:** tests, this documentation, and the agent
+  instructions listed below.
+- **Open-source preparation:** a public copy of the repository with cleaned
+  commit metadata.
+
+### My role: decisions and accountability
+
+**Architecture.**
+- Site content lives in the database, not in code, and is edited in the admin panel.
+- Public pages read data through server functions.
+- Every write goes straight to the database, and Row-Level Security is the
+  only guard that counts; checks in the UI are only for convenience.
+
+**Security.**
+- I defined the hardening in
+  [`0005_security_hardening.sql`](drizzle/migrations/0005_security_hardening.sql):
+  - removed the trigger that made the first sign-up an admin
+  - blocked anonymous calls to `has_role()`
+  - allowed only `https://` links
+- I closed public sign-up.
+
+Other security choices I made or approved:
+- the visitor counter collects no personal data
+- a Content-Security-Policy that blocks external scripts without breaking the
+  Lovable editor
+- a check that the repository contains no secrets before it went public
+
+**Review and verification.** In the Claude Code phase, no change went in on
+trust. Every change had to pass the type check, tests and production build.
+Beyond that, these were checked:
+- Database migrations by running them in a local Postgres and testing the
+  permissions as an anonymous visitor, a normal user and the admin.
+- The CSP in a real browser against a production build.
+- Accessibility with axe-core.
+- Security changes against the live site.
+
+Where AI output was wrong, it was caught and fixed before merging. For
+example, the first version of the project-card focus ring compiled to no CSS
+at all; checking the build output caught it.
+
+### Instructions for AI agents
+
+The repository includes instructions for AI agents, so anyone who uses an
+agent to work on the code gets the same project rules:
 
 | File | Read by |
 | --- | --- |
