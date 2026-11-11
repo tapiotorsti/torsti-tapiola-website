@@ -1,66 +1,118 @@
-# The Modern Developer
+# Torsti Tapiola — Personal Website
 
-Build a modern, highly responsive developer portfolio and personal website. 
+Source code for my developer portfolio: a server-rendered React site where projects,
+work experience, skills and profile details are stored in a Postgres database and
+edited through a private admin panel, so updating the site never needs a code change.
 
-### Visual & Design Direction (Avoid Generic AI Slop):
+## Features
 
-- Do NOT use generic purple-indigo gradients, floating glow orbs, frosted glassmorphism abuse, or standard SaaS landing page templates.
+- **Portfolio sections as separate routes:** home, experience, projects (with
+  Markdown case studies), skills and contact, each with its own page title and
+  meta tags for search engines and link previews.
+- **Content from the database:** pages load their data on the server, so the
+  first render already contains the content.
+- **Admin panel at `/admin`:** create, edit, reorder and delete projects,
+  experience entries, skills and profile information.
+- **Database-enforced access control:** row-level security lets anyone read and
+  only the admin role write. A UI check alone would not be enough, so the
+  database enforces the rule.
+- **Editorial, minimal design:** clean grid, monospace details, one accent
+  colour, mobile-first layout.
 
-- Aesthetic: Editorial minimalism / technical precision. Clean grids, sharp typography, high contrast, subtle borders (1px solid border colors with subtle opacity), and restrained motion.
+## Tech stack
 
-- Palette: Deep charcoal/near-black (#0a0a0c) background, crisp off-white text (#f4f4f5), muted slate for secondary text (#71717a), with a single precise accent color (e.g., warm amber or electric cyan).
+| Area | Tools |
+| --- | --- |
+| Framework | [TanStack Start](https://tanstack.com/start) (React 19, SSR, file-based routing, server functions) |
+| Data fetching | TanStack Query (`queryOptions` + route loaders) |
+| Database & auth | Supabase (Postgres, Row-Level Security, Auth) via Lovable Cloud |
+| Migrations | Plain SQL files tracked with Drizzle Kit |
+| UI | Tailwind CSS 4, shadcn/ui (Radix), Lucide icons, `react-markdown` |
+| Tooling | Vite 8, TypeScript, ESLint, Prettier, Vitest, Bun |
+| Hosting | Lovable (Cloudflare build target via Nitro) |
 
-- Typography: Monospace accents for dates, tags, and metrics (e.g., JetBrains Mono), clean sans-serif for headings and body (e.g., Inter / Geist).
+## Architecture
 
-- Fully responsive: Mobile-first navigation with clean drawer/sheet, responsive desktop layouts (css grid).
+```
+Browser ──► route loader ──► server function (createServerFn)
+                               └─► Supabase, publishable key ──► RLS: public SELECT
+Admin UI ──► Supabase browser client (signed-in session)
+                               └─► RLS: write only if has_role(auth.uid(), 'admin')
+```
 
-### Public Sections:
+- **Reads** go through server functions in
+  [`src/data/portfolio.functions.ts`](src/data/portfolio.functions.ts). Pages use
+  them through `queryOptions` in [`src/data/index.ts`](src/data/index.ts), and
+  each route's `loader` fills the cache before rendering.
+- **Writes** go from the admin UI directly to Supabase. The database decides
+  who may write: every table has a `"Admins manage"` policy that calls the
+  `SECURITY DEFINER` function `has_role()`.
+- **Security hardening** ([`0005_security_hardening.sql`](drizzle/migrations/0005_security_hardening.sql)):
+  - No automatic admin grant on sign-up.
+  - Anonymous users cannot call `has_role()`.
+  - Project links must use `https://` (enforced with CHECK constraints).
+  - Public sign-up is disabled in the auth settings.
+- **Profile fallback:** [`src/data/profile.ts`](src/data/profile.ts) is used only
+  if the `site_profile` row cannot be loaded.
 
-1. Hero:
+## Project structure
 
-   - Name, concise role description, status tag ("Available for projects" or similar), links to GitHub, LinkedIn, and email.
+```
+src/
+  routes/            File-based routes (public pages + /admin)
+  data/              Types, server functions and query options
+  components/site/   Site header, footer and layout primitives
+  components/admin/  Admin CRUD helpers
+  components/ui/     shadcn/ui components (generated)
+  integrations/      Supabase clients and generated DB types
+drizzle/migrations/  SQL migrations (schema, RLS policies, seed data)
+.agents/skills/      Task guides for AI coding agents (see below)
+```
 
-2. Work Experience (Timeline / List view):
+## Getting started
 
-   - Role, company/context, dates, bullet points of concrete impact, and tech tags. Clean editorial list layout rather than heavy rounded cards.
-
-3. Featured Projects (Portfolio):
-
-   - Grid layout showing project title, short description, architectural highlights/role, tech stack pills, and external links (Live demo, Repo).
-
-   - Modal or expandable drawer for deeper case-study view.
-
-4. Technical Skills & Focus Areas:
-
-   - Grouped logically (e.g., Frontend & UI, Backend & Systems, Tooling & DevOps) rather than arbitrary percentage bars.
-
-5. Contact / Footer:
-
-   - Simple contact section with direct email link and social profiles.
-
-### Architecture & Tech Stack:
-
-- Built with React, Vite, Tailwind CSS, Lucide icons, and shadcn/ui.
-
-- Prepare modular mock data in a dedicated `/data` folder so data fetching can be swapped cleanly to Supabase later.
-
-This project was built with [Lovable](https://lovable.dev).
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/84533dc4-61dd-436e-9d9a-c30c3cd5c2bf).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Requirements: [Bun](https://bun.sh) (or Node.js 22 + npm) and a Supabase project.
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+git clone https://github.com/tapiotorsti/torsti-tapiola-website.git
+cd torsti-tapiola-website
+bun install
+cp .env.example .env   # fill in your Supabase URL, project id and publishable key
+bun run dev
 ```
+
+To create the database, run the SQL files in `drizzle/migrations/` in order
+against your Supabase project, for example in the SQL editor. Migration `0000`
+seeds sample content. To get admin access, sign up once through Supabase Auth
+and add a row for your user to `public.user_roles` with the role `admin`.
+
+| Command | What it does |
+| --- | --- |
+| `bun run dev` | Start the dev server |
+| `bun run build` | Production build |
+| `bun run lint` | ESLint |
+| `bun run test` | Vitest test suite |
+| `bun run format` | Prettier |
+
+## Built with AI tools
+
+The project was started in [Lovable](https://lovable.dev) and developed further
+with AI coding agents. I made the architecture and security decisions, such as
+moving content into the database, restricting writes with RLS and removing the
+automatic admin grant, and I reviewed every change.
+
+The repository contains instructions for AI agents, so anyone who uses an agent
+to work on the code gets the same project rules:
+
+| File | Read by |
+| --- | --- |
+| [`AGENTS.md`](AGENTS.md) | Shared rules: OpenAI Codex, Cursor, GitHub Copilot, Gemini CLI, Jules, Zed, Aider and others that follow the AGENTS.md convention |
+| [`CLAUDE.md`](CLAUDE.md) | Claude Code (imports `AGENTS.md`) |
+| [`GEMINI.md`](GEMINI.md) | Gemini CLI (imports `AGENTS.md`) |
+| [`.github/copilot-instructions.md`](.github/copilot-instructions.md) | GitHub Copilot |
+| [`.agents/skills/`](.agents/skills) | Step-by-step task guides in the open Agent Skills format (`SKILL.md`) |
+| [`.claude/skills/`](.claude/skills) | Pointers that let Claude Code discover the same skills |
+
+## License
+
+[MIT](LICENSE) © Torsti Tapiola
