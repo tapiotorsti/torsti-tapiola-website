@@ -35,12 +35,87 @@ edited through a private admin panel, so updating the site never needs a code ch
 
 ## Architecture
 
+```mermaid
+flowchart LR
+  subgraph browser["Browser"]
+    visitor["Visitor"]
+    admin["Admin panel<br/>/admin"]
+  end
+
+  subgraph hosting["Lovable hosting · Cloudflare Workers"]
+    entry["server.ts<br/>CSP + security headers"]
+    ssr["TanStack Start SSR<br/>routes, loaders, head tags"]
+    fns["Server functions<br/>portfolio.functions.ts"]
+  end
+
+  subgraph supabase["Supabase via Lovable Cloud"]
+    auth["Auth<br/>email + password, sign-up off"]
+    subgraph pg["Postgres with Row-Level Security"]
+      content[("projects · experience<br/>skills · site_profile")]
+      roles[("user_roles<br/>has_role()")]
+      views[("page_views")]
+      record["record_page_view()"]
+    end
+  end
+
+  visitor -- "HTTPS page request" --> entry --> ssr --> fns
+  fns -- "SELECT, publishable key" --> content
+  visitor -. "page view, no cookies" .-> record --> views
+  admin -- "sign in" --> auth
+  admin -- "INSERT / UPDATE / DELETE<br/>with user JWT" --> content
+  admin -- "read stats" --> views
+  content -. "RLS: writes only for admin" .-> roles
+  views -. "RLS: reads only for admin" .-> roles
 ```
-Browser ──► route loader ──► server function (createServerFn)
-                               └─► Supabase, publishable key ──► RLS: public SELECT
-Admin UI ──► Supabase browser client (signed-in session)
-                               └─► RLS: write only if has_role(auth.uid(), 'admin')
+
+```mermaid
+erDiagram
+  user_roles {
+    uuid id PK
+    uuid user_id FK "auth.users"
+    app_role role "admin | user"
+  }
+  site_profile {
+    int id PK "always 1"
+    text name
+    text role
+    text tagline
+    jsonb socials
+  }
+  projects {
+    uuid id PK
+    text title
+    text slug UK
+    text content "Markdown case study"
+    text_array tech_stack
+    text live_url "https only"
+    text github_url "https only"
+    int sort_order
+  }
+  experience {
+    uuid id PK
+    text role
+    text company
+    text kind "work | education"
+    text_array skills
+    int sort_order
+  }
+  skills {
+    uuid id PK
+    text category
+    text name
+    int sort_order
+  }
+  page_views {
+    date day PK
+    text path PK
+    int views
+    int visits
+  }
 ```
+
+The content tables are independent: there are no foreign keys between them.
+Access is controlled per table by RLS policies that call `has_role()`.
 
 - **Reads** go through server functions in
   [`src/data/portfolio.functions.ts`](src/data/portfolio.functions.ts). Pages use
@@ -56,6 +131,13 @@ Admin UI ──► Supabase browser client (signed-in session)
   - Public sign-up is disabled in the auth settings.
 - **Profile fallback:** [`src/data/profile.ts`](src/data/profile.ts) is used only
   if the `site_profile` row cannot be loaded.
+- **Security headers:** [`src/lib/security-headers.ts`](src/lib/security-headers.ts)
+  adds a Content-Security-Policy, frame protection and other headers to every
+  server-rendered response.
+- **Page view counter** ([`0006_page_views.sql`](drizzle/migrations/0006_page_views.sql)):
+  stores only a count per page per day, with no cookies or personal data.
+  Visitors can only call `record_page_view()`, and only the admin can read the
+  stats at `/admin/stats`.
 
 ## Project structure
 
