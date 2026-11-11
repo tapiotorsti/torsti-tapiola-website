@@ -9,7 +9,7 @@ import {
   projectsQuery,
   siteName,
 } from "@/data";
-import { Page, Tag } from "@/components/site/primitives";
+import { NewTabHint, Page, Tag } from "@/components/site/primitives";
 import { isSafeUrl } from "@/lib/utils";
 import { jsonLd, personJsonLd, seo } from "@/lib/seo";
 
@@ -107,7 +107,8 @@ function Home() {
                     rel="noreferrer"
                     className="inline-flex items-center gap-2 border border-border px-4 py-2 text-sm transition-colors hover:border-primary hover:text-primary"
                   >
-                    <Icon className="h-4 w-4" /> {s.label}
+                    <Icon className="h-4 w-4" aria-hidden="true" /> {s.label}
+                    <NewTabHint />
                   </a>
                 );
               })}
@@ -149,7 +150,10 @@ function Home() {
                   to="/projects"
                   className="group grid grid-cols-12 items-baseline gap-4 border-b border-border py-5"
                 >
-                  <span className="col-span-2 font-mono text-xs text-muted-foreground">
+                  <span
+                    aria-hidden="true"
+                    className="col-span-2 font-mono text-xs text-muted-foreground"
+                  >
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <span className="col-span-10 text-xl group-hover:text-primary md:col-span-4">

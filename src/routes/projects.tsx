@@ -6,7 +6,7 @@ import ReactMarkdown from "react-markdown";
 import { loadSiteIdentity, pageTitle, projectsQuery, siteName, type Project } from "@/data";
 import { seo } from "@/lib/seo";
 import { isSafeUrl } from "@/lib/utils";
-import { Page, SectionHeader, Tag } from "@/components/site/primitives";
+import { NewTabHint, Page, SectionHeader, Tag } from "@/components/site/primitives";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/projects")({
@@ -24,18 +24,20 @@ export const Route = createFileRoute("/projects")({
   component: ProjectsPage,
 });
 
+// `relative z-10` lifts the links above the card's full-size click target.
 function Links({ p }: { p: Project }) {
   return (
-    <div className="flex gap-4 font-mono text-xs">
+    <div className="relative z-10 flex gap-4 font-mono text-xs">
       {isSafeUrl(p.live_url) && (
         <a
           href={p.live_url}
           target="_blank"
           rel="noreferrer"
-          onClick={(e) => e.stopPropagation()}
           className="inline-flex items-center gap-1 text-muted-foreground hover:text-primary"
         >
-          Live <ArrowUpRight className="h-3 w-3" />
+          Live <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+          <span className="sr-only"> demo of {p.title}</span>
+          <NewTabHint />
         </a>
       )}
       {isSafeUrl(p.github_url) && (
@@ -43,10 +45,11 @@ function Links({ p }: { p: Project }) {
           href={p.github_url}
           target="_blank"
           rel="noreferrer"
-          onClick={(e) => e.stopPropagation()}
           className="inline-flex items-center gap-1 text-muted-foreground hover:text-primary"
         >
-          <Github className="h-3 w-3" /> Repo
+          <Github className="h-3 w-3" aria-hidden="true" /> Repo
+          <span className="sr-only"> of {p.title}</span>
+          <NewTabHint />
         </a>
       )}
     </div>
@@ -68,18 +71,23 @@ function ProjectsPage() {
         {data.map((p, i) => (
           <article
             key={p.id}
-            role="button"
-            tabIndex={0}
-            onClick={() => setActive(p)}
-            onKeyDown={(e) => e.key === "Enter" && setActive(p)}
-            className="reveal group flex cursor-pointer flex-col bg-background p-6 transition-colors hover:bg-card md:p-8"
+            className="reveal group relative flex flex-col bg-background p-6 transition-colors hover:bg-card md:p-8"
             style={{ animationDelay: `${i * 70}ms` }}
           >
-            <div className="font-mono text-xs text-muted-foreground">
-              <span>{String(i + 1).padStart(2, "0")}</span>
+            <div aria-hidden="true" className="font-mono text-xs text-muted-foreground">
+              {String(i + 1).padStart(2, "0")}
             </div>
             <h2 className="mt-8 text-3xl font-medium tracking-tight group-hover:text-primary">
-              {p.title}
+              {/* Real button (Enter + Space). Its ::after covers the card, so the whole card is
+                  clickable and the keyboard focus ring is drawn around the whole card. */}
+              <button
+                type="button"
+                onClick={() => setActive(p)}
+                className="cursor-pointer text-left after:absolute after:inset-0 after:content-[''] focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:-outline-offset-2 focus-visible:after:outline-ring focus-visible:after:outline-solid"
+              >
+                {p.title}
+                <span className="sr-only">: open case study</span>
+              </button>
             </h2>
             <p className="mt-3 text-muted-foreground">{p.summary}</p>
             <div className="mt-6 flex flex-wrap gap-2">
@@ -89,7 +97,10 @@ function ProjectsPage() {
             </div>
             <div className="mt-auto flex items-center justify-between pt-8">
               <Links p={p} />
-              <span className="font-mono text-xs text-muted-foreground group-hover:text-primary">
+              <span
+                aria-hidden="true"
+                className="font-mono text-xs text-muted-foreground group-hover:text-primary"
+              >
                 Case study →
               </span>
             </div>

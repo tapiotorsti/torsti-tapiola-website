@@ -35,7 +35,9 @@ function SkillsPage() {
             className="reveal border-b border-border py-10 md:odd:border-r md:odd:pr-10 md:even:pl-10"
             style={{ animationDelay: `${i * 70}ms` }}
           >
-            <p className="font-mono text-xs text-primary">{String(i + 1).padStart(2, "0")}</p>
+            <p aria-hidden="true" className="font-mono text-xs text-primary">
+              {String(i + 1).padStart(2, "0")}
+            </p>
             <h2 className="mt-3 text-2xl font-medium tracking-tight">{g.category}</h2>
             <ul className="mt-6 grid grid-cols-2 gap-x-6 font-mono text-sm">
               {g.items.map((s) => (

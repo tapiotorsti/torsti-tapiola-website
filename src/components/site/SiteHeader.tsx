@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { profileQuery } from "@/data";
 import { profile as fallback } from "@/data/profile";
 import { isSafeUrl } from "@/lib/utils";
+import { NewTabHint } from "./primitives";
 
 const nav = [
   { to: "/experience", label: "Experience", n: "01" },
@@ -32,7 +33,9 @@ export function SiteHeader() {
               className="text-sm text-muted-foreground transition-colors hover:text-foreground"
               activeProps={{ className: "text-foreground" }}
             >
-              <span className="mr-1.5 font-mono text-[10px] text-primary">{i.n}</span>
+              <span aria-hidden="true" className="mr-1.5 font-mono text-[10px] text-primary">
+                {i.n}
+              </span>
               {i.label}
             </Link>
           ))}
@@ -42,7 +45,9 @@ export function SiteHeader() {
             <Menu className="h-5 w-5" />
           </SheetTrigger>
           <SheetContent side="right" className="w-full border-border bg-background sm:max-w-sm">
-            <SheetTitle className="font-mono text-xs font-normal text-muted-foreground">MENU</SheetTitle>
+            <SheetTitle className="font-mono text-xs font-normal text-muted-foreground">
+              MENU
+            </SheetTitle>
             <nav className="mt-10 flex flex-col">
               {nav.map((i) => (
                 <Link
@@ -51,7 +56,9 @@ export function SiteHeader() {
                   onClick={() => setOpen(false)}
                   className="flex items-baseline gap-4 border-b border-border py-5 text-2xl"
                 >
-                  <span className="font-mono text-xs text-primary">{i.n}</span>
+                  <span aria-hidden="true" className="font-mono text-xs text-primary">
+                    {i.n}
+                  </span>
                   {i.label}
                 </Link>
               ))}
@@ -68,14 +75,30 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-border">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-5 py-8 font-mono text-xs text-muted-foreground md:flex-row md:items-center md:justify-between md:px-8">
-        <p>© {new Date().getFullYear()} {profile.name}{profile.location.trim() && ` — ${profile.location}`}</p>
+        <p>
+          © {new Date().getFullYear()} {profile.name}
+          {profile.location.trim() && ` — ${profile.location}`}
+        </p>
         <div className="flex gap-6">
-          {profile.email.trim() && <a href={`mailto:${profile.email}`} className="hover:text-foreground">Email</a>}
-          {profile.socials.filter((s) => isSafeUrl(s.href)).map((s) => (
-            <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="hover:text-foreground">
-              {s.label}
+          {profile.email.trim() && (
+            <a href={`mailto:${profile.email}`} className="hover:text-foreground">
+              Email
             </a>
-          ))}
+          )}
+          {profile.socials
+            .filter((s) => isSafeUrl(s.href))
+            .map((s) => (
+              <a
+                key={s.label}
+                href={s.href}
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-foreground"
+              >
+                {s.label}
+                <NewTabHint />
+              </a>
+            ))}
         </div>
       </div>
     </footer>

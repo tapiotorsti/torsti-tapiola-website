@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowUpRight } from "lucide-react";
 import { loadSiteIdentity, pageTitle, profileQuery, siteName } from "@/data";
-import { Page, SectionHeader } from "@/components/site/primitives";
+import { NewTabHint, Page, SectionHeader } from "@/components/site/primitives";
 import { isSafeUrl } from "@/lib/utils";
 import { seo } from "@/lib/seo";
 
@@ -55,8 +55,12 @@ function ContactPage() {
                 </span>
                 <span className="col-span-7 group-hover:text-primary md:col-span-8">
                   {s.handle}
+                  <NewTabHint />
                 </span>
-                <ArrowUpRight className="col-span-1 h-4 w-4 justify-self-end text-muted-foreground group-hover:text-primary" />
+                <ArrowUpRight
+                  aria-hidden="true"
+                  className="col-span-1 h-4 w-4 justify-self-end text-muted-foreground group-hover:text-primary"
+                />
               </a>
             </li>
           ))}
