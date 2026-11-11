@@ -18,6 +18,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { pageTitle } from "@/data";
 import { profile as fallbackProfile } from "@/data/profile";
+import { usePageViewTracking } from "@/lib/page-view-tracking";
 
 function NotFoundComponent() {
   return (
@@ -125,6 +126,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
   const isAdmin = useLocation({ select: (l) => l.pathname.startsWith("/admin") });
+  usePageViewTracking();
 
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {

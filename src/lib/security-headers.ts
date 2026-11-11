@@ -12,7 +12,7 @@ const PREVIEW_ZONES = [
   "gptengineer.run",
 ];
 
-function isPreviewHost(hostname: string): boolean {
+export function isPreviewHost(hostname: string): boolean {
   return (
     hostname === "localhost" ||
     hostname === "127.0.0.1" ||

@@ -29,6 +29,7 @@ const tabs = [
   { to: "/admin/experience", label: "Experience" },
   { to: "/admin/skills", label: "Skills" },
   { to: "/admin/profile", label: "Profile" },
+  { to: "/admin/stats", label: "Stats" },
 ] as const;
 
 function AdminLayout() {
