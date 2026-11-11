@@ -180,70 +180,99 @@ and add a row for your user to `public.user_roles` with the role `admin`.
 
 ## How AI was used
 
-AI tools wrote most of the code in this project. I directed the work and made
-the decisions, and I am responsible for the result, especially its security
-and architecture.
+AI tools wrote most of the code in this project. My goal was to use them to
+move fast without giving up control over quality, security or
+maintainability. I directed the work and made the decisions, and I am
+responsible for the result, especially its security and architecture.
 
-### Lovable: UI and foundation
+### At a glance
 
-I wrote the brief: an editorial, minimal look, the page sections, the stack,
-and a data layer that could later move to a database. From it,
-[Lovable](https://lovable.dev) generated the first version:
+| Phase | Tool | Time | Result |
+| --- | --- | --- | --- |
+| Foundation | [Lovable](https://lovable.dev) | About 2 days (2–3 Nov 2026) | Working site: design, database, admin panel and hosting |
+| Production-ready | [Claude Code](https://claude.com/claude-code) | 1 day (11 Nov 2026) | Security, dependency fixes, visitor stats, SEO, accessibility, documentation and open-source release |
 
-- TanStack Start app, layout and visual design
-- Supabase integration through Lovable Cloud
-- First admin panel
+What the production-ready day covered:
+- 10 focused commits, about 1,900 changed lines in 46 files
+- automated tests: 1 → 22
+- known dependency vulnerabilities: 29 → 2 (both in dev-only tools)
+- 0 accessibility violations in an axe-core scan (WCAG 2.2 AA)
 
-Lovable also hosts the site.
+The commit history shows the work step by step. In this phase, each commit
+message explains what was changed and why.
 
-### Claude Code: finishing the work
+### 1. The right tool for each phase
 
-The rest was built with [Claude Code](https://claude.com/claude-code):
+- **Lovable** for the foundation, where seeing the UI quickly matters most. I
+  wrote the brief: an editorial, minimal look, the page sections, the stack,
+  and a data layer that could later move to a database. Lovable generated the
+  TanStack Start app, the design, the Supabase integration and the first admin
+  panel, and it also hosts the site.
+- **Claude Code** in the codebase for engineering work that needs tests,
+  database migrations and careful review.
 
-- **Security:** security headers and a Content-Security-Policy; dependency
-  updates that fixed 27 of 29 known vulnerabilities.
-- **Page view counter:** migration, database function and admin stats page.
-- **SEO:** canonical URLs, a social share card, structured data and a sitemap.
-- **Accessibility:** fixes from a WCAG 2.2 AA review.
-- **Tests and documentation:** tests, this documentation, and the agent
-  instructions listed below.
-- **Open-source preparation:** a public copy of the repository with cleaned
-  commit metadata.
+### 2. Decisions stay with a person
 
-### My role: decisions and accountability
+AI proposed; I decided.
 
-**Architecture.**
+**Architecture**
 - Site content lives in the database, not in code, and is edited in the admin panel.
 - Public pages read data through server functions.
 - Every write goes straight to the database, and Row-Level Security is the
-  only guard that counts; checks in the UI are only for convenience.
+  only guard that counts. Checks in the UI are only for convenience.
 
-**Security.**
+**Security**
 - I defined the hardening in
   [`0005_security_hardening.sql`](drizzle/migrations/0005_security_hardening.sql):
   - removed the trigger that made the first sign-up an admin
   - blocked anonymous calls to `has_role()`
   - allowed only `https://` links
 - I closed public sign-up.
+- I made or approved the other security choices:
+  - the visitor counter collects no personal data
+  - the Content-Security-Policy blocks external scripts without breaking the
+    Lovable editor
+  - the repository was checked for secrets before it went public
 
-Other security choices I made or approved:
-- the visitor counter collects no personal data
-- a Content-Security-Policy that blocks external scripts without breaking the
-  Lovable editor
-- a check that the repository contains no secrets before it went public
+**Trade-offs**
+- Rewriting the git history would have broken the sync with Lovable. Instead,
+  I chose to publish a separate public copy whose commit metadata is cleaned
+  by a repeatable script.
 
-**Review and verification.** In the Claude Code phase, no change went in on
-trust. Every change had to pass the type check, tests and production build.
-Beyond that, these were checked:
-- Database migrations by running them in a local Postgres and testing the
-  permissions as an anonymous visitor, a normal user and the admin.
-- The CSP in a real browser against a production build.
-- Accessibility with axe-core.
-- Security changes against the live site.
+### 3. Verify, don't trust
 
-Where AI output was wrong, it was caught and fixed before merging. For
-example, the first version of the project-card focus ring compiled to no CSS
-at all; checking the build output caught it.
+In the Claude Code phase, every change had to pass the type check, the tests
+and a production build. Beyond that:
+
+- Database migrations were run in a local Postgres. Permissions were tested as
+  an anonymous visitor, a normal user and the admin.
+- The CSP was tested in a real browser against a production build: no blocked
+  resources on any page.
+- Accessibility was scanned with axe-core. Colour contrast was calculated from
+  the theme tokens.
+- Security settings were checked against the live site with read-only requests.
+
+These checks caught AI mistakes before they shipped:
+- The first project-card focus ring compiled to no CSS at all; checking the
+  build output caught it.
+- In the second attempt, the ring inherited `outline: none` and would have
+  stayed invisible.
+- A project note claimed that the first sign-up becomes admin, which had
+  stopped being true. It was corrected before any agent could rely on it.
+
+### 4. Build for the next change
+
+- **The same rules for every future change.** The repository includes
+  [instructions for AI agents](#instructions-for-ai-agents), so any agent that
+  works on the code follows the same rules for security, accessibility, SEO and
+  data access.
+- **Tests guard the new logic,** so later changes can't silently break it.
+- **Small, explained commits** keep every change easy to review and to revert.
+- **Changes stay in scope.** Generated files were not edited by hand. The
+  existing lint debt in generated code was documented instead of being
+  reformatted as part of unrelated work.
+- **Privacy and security by default.** The visitor counter stores no personal
+  data, and dependencies are audited.
 
 ### Instructions for AI agents
 
