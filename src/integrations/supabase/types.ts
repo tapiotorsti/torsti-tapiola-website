@@ -47,27 +47,6 @@ export type Database = {
         }
         Relationships: []
       }
-      page_views: {
-        Row: {
-          day: string
-          path: string
-          views: number
-          visits: number
-        }
-        Insert: {
-          day: string
-          path: string
-          views?: number
-          visits?: number
-        }
-        Update: {
-          day?: string
-          path?: string
-          views?: number
-          visits?: number
-        }
-        Relationships: []
-      }
       projects: {
         Row: {
           content: string
@@ -199,10 +178,6 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
-      }
-      record_page_view: {
-        Args: { _new_visit?: boolean; _path: string }
-        Returns: undefined
       }
     }
     Enums: {
