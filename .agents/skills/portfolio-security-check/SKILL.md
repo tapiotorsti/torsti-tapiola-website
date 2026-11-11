@@ -49,6 +49,13 @@ description: Security checklist for this portfolio's Supabase RLS, admin auth, s
       code (`noreferrer` also implies `noopener`).
 - [ ] Markdown is rendered with `react-markdown` without raw HTML. No `dangerouslySetInnerHTML`.
 
+### Headers and dependencies
+- [ ] `src/lib/security-headers.ts` still sets the CSP and frame protection. A new
+      external origin is added to the narrowest directive (`font-src`, `connect-src`, …),
+      never as a wildcard in `default-src` or `script-src`.
+- [ ] `bun audit` shows no new high or critical advisories in runtime dependencies.
+      Advisories in dev-only tools (eslint, drizzle-kit, the Vite dev server) are lower priority.
+
 ## Report
 
 List each item that fails, with file and line and a concrete fix. If something

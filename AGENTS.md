@@ -62,6 +62,7 @@ and keep those clean. Do not reformat the whole repo in an unrelated change.
 - Never use or expose a service-role key in client code or `VITE_*` variables. `.env` holds only the publishable key.
 - User-supplied URLs must be `https://`: validate them with `isSafeUrl()` from `@/lib/utils` in forms and before rendering, add a DB CHECK constraint, and open external links with `target="_blank" rel="noreferrer"`.
 - No `dangerouslySetInnerHTML`. Markdown is rendered with `react-markdown`.
+- Security headers (CSP, X-Frame-Options, Permissions-Policy) are set in `src/lib/security-headers.ts`, are covered by `src/test/security-headers.test.ts`, and are skipped in dev and the Lovable preview. If you add an external script, style, font, image or API origin, add it to the CSP in the same change, or production will block it.
 
 ## Git
 - Commit to `main` only in a working state: type check, tests and build pass, and the files you changed lint clean.
