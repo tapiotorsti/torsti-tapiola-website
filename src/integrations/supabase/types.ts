@@ -32,6 +32,42 @@ export type Database = {
         }
         Relationships: []
       }
+      courses: {
+        Row: {
+          completed: string
+          created_at: string
+          credential_url: string | null
+          id: string
+          learned: string
+          provider: string
+          skills: string[]
+          sort_order: number
+          title: string
+        }
+        Insert: {
+          completed?: string
+          created_at?: string
+          credential_url?: string | null
+          id?: string
+          learned?: string
+          provider?: string
+          skills?: string[]
+          sort_order?: number
+          title: string
+        }
+        Update: {
+          completed?: string
+          created_at?: string
+          credential_url?: string | null
+          id?: string
+          learned?: string
+          provider?: string
+          skills?: string[]
+          sort_order?: number
+          title?: string
+        }
+        Relationships: []
+      }
       experience: {
         Row: {
           company: string
