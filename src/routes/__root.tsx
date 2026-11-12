@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader, SiteFooter } from "../components/site/SiteHeader";
 import { MAIN_ID } from "../components/site/primitives";
+import { ChatAssistant } from "../components/site/ChatAssistant";
 import { useLocation } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -162,6 +163,7 @@ function RootComponent() {
             <Outlet />
           </div>
           <SiteFooter />
+          <ChatAssistant />
         </div>
       )}
       <Toaster />

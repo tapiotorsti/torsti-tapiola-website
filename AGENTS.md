@@ -48,6 +48,12 @@ and keep those clean. Do not reformat the whole repo in an unrelated change.
 - Styling: Tailwind utility classes and the design tokens in `src/styles.css`. Keep the look editorial and minimal: 1px borders, monospace for dates, tags and indices, one accent colour (`text-primary`). Reuse `Page` and `SectionHeader` from `src/components/site/primitives.tsx`.
 - Formatting follows `.prettierrc`; run `bun run format` on files you touched if needed.
 
+## Site assistant (`src/lib/chat/`)
+- A chat widget (`src/components/site/ChatAssistant.tsx`) answers questions about the site owner from the public site content only, using Claude Haiku 5.5 (`ASSISTANT_MODEL` in `assistant.server.ts`). One structured-output request per question returns `{ reply, suggested_page }`; `suggested_page` must be one of `ASSISTANT_PAGES`.
+- Privacy: conversations live only in the widget's memory. Never store, log or send them anywhere except the Anthropic API call. Rate limiting stores only an hourly HMAC of the IP (`0008_chat_rate_limit.sql`).
+- Security: `ANTHROPIC_API_KEY` is server-only (Lovable Cloud secrets, or `.env.local` locally; never `.env` or `VITE_*`). Server-only code lives in `*.server.ts` files that are imported dynamically from the server function. Model output is rendered as plain text. The handler fails closed when the rate limit can't be checked.
+- Prompt changes: edit `buildSystemPrompt()` in `prompt.ts`, keep it deterministic (for prompt caching), then run `bun scripts/eval-assistant.ts`, which needs a key, and check that all cases still pass.
+
 ## Accessibility (WCAG 2.2 AA)
 - Interactive things are real `<button>`/`<a>` elements, never `role="button"` on a container, and never nested inside each other. For a clickable card, use a button in the heading whose `after:absolute after:inset-0` overlay covers the card, and lift inner links with `relative z-10` (see `src/routes/projects.tsx`).
 - Keep visible keyboard focus: don't remove outlines without a replacement. The focus colour is `--ring` (primary purple). Don't change it to the gold accent, which has too little contrast.

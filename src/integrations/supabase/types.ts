@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      chat_rate_limits: {
+        Row: {
+          bucket: string
+          hits: number
+          window_start: string
+        }
+        Insert: {
+          bucket: string
+          hits?: number
+          window_start: string
+        }
+        Update: {
+          bucket?: string
+          hits?: number
+          window_start?: string
+        }
+        Relationships: []
+      }
       experience: {
         Row: {
           company: string
@@ -193,6 +211,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      chat_rate_limit_hit: { Args: { _bucket: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

@@ -18,6 +18,9 @@ edited through a private admin panel, so updating the site never needs a code ch
 - **Database-enforced access control:** row-level security lets anyone read and
   only the admin role write. A UI check alone would not be enough, so the
   database enforces the rule.
+- **AI assistant:** visitors can ask about experience, projects and skills in
+  English or Finnish. The assistant answers only from the site's content and
+  can point to the right page. Conversations are not stored.
 - **Editorial, minimal design:** clean grid, monospace details, one accent
   colour, mobile-first layout.
 
@@ -46,7 +49,10 @@ flowchart LR
     entry["server.ts<br/>CSP + security headers"]
     ssr["TanStack Start SSR<br/>routes, loaders, head tags"]
     fns["Server functions<br/>portfolio.functions.ts"]
+    chat["Assistant server function<br/>chat.functions.ts"]
   end
+
+  anthropic["Claude Haiku 5.5<br/>Anthropic API"]
 
   subgraph supabase["Supabase via Lovable Cloud"]
     auth["Auth<br/>email + password, sign-up off"]
@@ -55,12 +61,17 @@ flowchart LR
       roles[("user_roles<br/>has_role()")]
       views[("page_views")]
       record["record_page_view()"]
+      limit["chat_rate_limit_hit()<br/>hashed, hourly"]
     end
   end
 
   visitor -- "HTTPS page request" --> entry --> ssr --> fns
   fns -- "SELECT, publishable key" --> content
   visitor -. "page view, no cookies" .-> record --> views
+  visitor -- "question" --> chat
+  chat -- "1. rate limit" --> limit
+  chat -- "2. SELECT site content" --> content
+  chat -- "3. content + question,<br/>server-side API key" --> anthropic
   admin -- "sign in" --> auth
   admin -- "INSERT / UPDATE / DELETE<br/>with user JWT" --> content
   admin -- "read stats" --> views
@@ -138,6 +149,21 @@ Access is controlled per table by RLS policies that call `has_role()`.
   stores only a count per page per day, with no cookies or personal data.
   Visitors can only call `record_page_view()`, and only the admin can read the
   stats at `/admin/stats`.
+- **AI assistant** ([`src/lib/chat/`](src/lib/chat)):
+  - **Request flow:** one request per question to Claude Haiku 5.5. The system
+    prompt holds the public site content and is prompt-cached. A structured
+    output (JSON schema) returns the answer and a suggested page from a fixed
+    list, so the assistant cannot produce arbitrary links.
+  - **Scope:** the prompt limits answers to the site's content and tells the
+    model to decline everything else. [`scripts/eval-assistant.ts`](scripts/eval-assistant.ts)
+    checks on-topic answers, off-topic questions and jailbreak attempts in
+    English and Finnish.
+  - **Abuse and cost:** questions and conversations have length limits. A
+    database-backed rate limit allows 20 questions per hour per visitor and
+    stores only an hourly HMAC of the IP address, deleted after two hours. The
+    handler fails closed if the limit can't be checked.
+  - **Privacy:** the conversation exists only in the browser tab. It is not
+    stored or logged on the site, and the API key never leaves the server.
 
 ## Project structure
 
