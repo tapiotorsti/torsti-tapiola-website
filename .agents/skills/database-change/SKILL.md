@@ -16,6 +16,12 @@ numbered SQL files in `drizzle/migrations/`. Applied migrations are never edited
   to connect to the database or invent a connection string. In your report, say
   that the owner must apply the migration in Lovable, or in the Supabase SQL
   editor for a fork, before the code works.
+- **Don't add entries to `drizzle/migrations/meta/_journal.json` yourself.** A
+  migration that is listed in the journal but was not applied by Lovable's
+  migrator breaks it: with `0008_chat_rate_limit` Lovable had to comment the file
+  out and re-apply the same SQL as `0009`. Add only the `.sql` file and ask the
+  owner to have Lovable apply it ("Apply the database migration
+  drizzle/migrations/NNNN_….sql"). Lovable then registers it.
 
 ## 1. Write the migration
 
