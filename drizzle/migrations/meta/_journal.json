@@ -71,6 +71,13 @@
       "when": 1794556800001,
       "tag": "0009_chat_rate_limit",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794556800002,
+      "tag": "0010_apply_courses",
+      "breakpoints": true
     }
   ]
 }
