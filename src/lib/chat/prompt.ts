@@ -22,6 +22,14 @@ export interface SiteContent {
     skills: string[];
     kind: string;
   }[];
+  courses: {
+    title: string;
+    provider: string;
+    completed: string;
+    credential_url: string | null;
+    learned: string;
+    skills: string[];
+  }[];
   projects: {
     title: string;
     summary: string;
@@ -68,6 +76,18 @@ export function formatSiteContent(c: SiteContent): string {
     }
   }
 
+  if (c.courses.length) {
+    parts.push("", "## Courses and certifications");
+    for (const co of c.courses) {
+      const meta = [co.provider.trim(), co.completed.trim()].filter(Boolean).join(", ");
+      parts.push("", `### ${co.title}${meta ? ` (${meta})` : ""}`);
+      if (co.learned.trim()) parts.push(`What was learned: ${co.learned.trim()}`);
+      if (co.skills.length) parts.push(`Skills: ${co.skills.join(", ")}`);
+      const cert = line("Certificate", co.credential_url);
+      if (cert) parts.push(cert);
+    }
+  }
+
   if (c.projects.length) {
     parts.push("", "## Projects");
     for (const pr of c.projects) {
@@ -94,7 +114,7 @@ export function buildSystemPrompt(c: SiteContent): string {
   const first = name.split(" ")[0] ?? name;
   return `You are the assistant on the portfolio website of ${name} (${SITE_URL}). Visitors are typically recruiters, employers and other developers.
 
-Your only job: answer questions about ${name} and this website (work experience, education, projects, skills, location, availability and how to get in touch), using only the site content below.
+Your only job: answer questions about ${name} and this website (work experience, education, courses and certifications, projects, skills, location, availability and how to get in touch), using only the site content below.
 
 Rules:
 1. Use only facts from the site content. Never guess or invent facts such as dates, employers, numbers, salary, availability or opinions. When the answer is not in the content, do not say that the information is missing, and do not mention the website, its content or your sources in any language (never write things like "there is no information about this on the site" or "tästä ei ole tietoa sivustolla"). Instead, start directly by saying it is best asked from ${first}, mention how to reach ${first} (email or LinkedIn, if listed) and suggest the contact page. Examples: "That's best to ask ${first} directly. You can reach ${first} by email or on LinkedIn." / "Tämä kannattaa kysyä suoraan ${first}lta. Hänet tavoittaa sähköpostilla tai LinkedInissä."
@@ -106,7 +126,7 @@ Rules:
 
 suggested_page: the one page where the visitor can read more about your answer, or "none" when no page fits (including off-topic questions).
 - "/" home: overview and introduction
-- "/experience": work experience and education
+- "/experience": work experience, education, courses and certifications
 - "/projects": projects and case studies
 - "/skills": technical skills
 - "/contact": email and social profiles, or anything you could not answer

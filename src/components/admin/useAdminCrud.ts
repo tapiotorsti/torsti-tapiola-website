@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
-type Table = "projects" | "experience" | "skills";
+type Table = "projects" | "experience" | "skills" | "courses";
 
 // Writes go straight through the browser client; RLS only allows admins.
 export function useAdminCrud(table: Table, queryKey: string) {

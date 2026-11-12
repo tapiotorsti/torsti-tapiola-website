@@ -107,6 +107,24 @@ const content: SiteContent = {
       kind: "education",
     },
   ],
+  courses: [
+    {
+      title: "Cloud Practitioner",
+      provider: "AWS",
+      completed: "2025",
+      credential_url: "https://example.com/cert",
+      learned: "Cost-aware architecture.",
+      skills: ["AWS"],
+    },
+    {
+      title: "Untitled course",
+      provider: "",
+      completed: "",
+      credential_url: null,
+      learned: "",
+      skills: [],
+    },
+  ],
   projects: [
     {
       title: "PiecesHub",
@@ -150,6 +168,16 @@ describe("buildSystemPrompt", () => {
     const text = formatSiteContent(content);
     expect(text.indexOf("Acme")).toBeLessThan(text.indexOf("## Education"));
     expect(text).not.toMatch(/Status:/);
+  });
+
+  it("includes courses with what was learned and omits empty course fields", () => {
+    const text = formatSiteContent(content);
+    expect(text).toContain("## Courses and certifications");
+    expect(text).toContain("### Cloud Practitioner (AWS, 2025)");
+    expect(text).toContain("What was learned: Cost-aware architecture.");
+    expect(text).toContain("Certificate: https://example.com/cert");
+    expect(text).toContain("### Untitled course\n");
+    expect(text.indexOf("## Education")).toBeLessThan(text.indexOf("## Courses"));
   });
 });
 

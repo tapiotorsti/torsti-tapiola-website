@@ -33,6 +33,17 @@ export interface Project {
   sort_order: number;
 }
 
+export interface Course {
+  id: string;
+  title: string;
+  provider: string;
+  completed: string;
+  credential_url: string | null;
+  learned: string;
+  skills: string[];
+  sort_order: number;
+}
+
 export interface SkillGroup {
   category: string;
   items: string[];

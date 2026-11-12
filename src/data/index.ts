@@ -1,7 +1,13 @@
-// Data access layer: profile, projects, experience and skills come from Lovable Cloud.
+// Data access layer: profile, projects, experience, courses and skills come from Lovable Cloud.
 import { queryOptions, type QueryClient } from "@tanstack/react-query";
 import { profile } from "./profile";
-import { fetchExperience, fetchProfile, fetchProjects, fetchSkills } from "./portfolio.functions";
+import {
+  fetchCourses,
+  fetchExperience,
+  fetchProfile,
+  fetchProjects,
+  fetchSkills,
+} from "./portfolio.functions";
 import type { Profile, SkillGroup } from "./types";
 
 export * from "./types";
@@ -42,7 +48,8 @@ export function pageTitle(page: string, site: SiteIdentity | undefined) {
   return page ? `${page} — ${name}` : `${name} — ${site?.role ?? profile.role}`;
 }
 export const experienceQuery = queryOptions({ queryKey: ["experience"], queryFn: getExperience });
-export const projectsQuery = queryOptions({ queryKey: ["projects"], queryFn: getProjects });
+export const coursesQuery = queryOptions({ queryKey: ["courses"], queryFn: () => fetchCourses() });
+export const projectsQuery =queryOptions({ queryKey: ["projects"], queryFn: getProjects });
 export const skillsQuery = queryOptions({ queryKey: ["skills"], queryFn: getSkills });
 // Flat rows for the admin table; shares the "skills" key prefix so invalidation refreshes both.
 export const skillRowsQuery = queryOptions({ queryKey: ["skills", "rows"], queryFn: () => fetchSkills() });

@@ -1,7 +1,7 @@
 # Torsti Tapiola — Personal Website
 
 Source code for my developer portfolio: a server-rendered React site where projects,
-work experience, skills and profile details are stored in a Postgres database and
+work experience, courses, skills and profile details are stored in a Postgres database and
 edited through a private admin panel, so updating the site never needs a code change.
 
 **Live site: [torsti.dev](https://torsti.dev)**
@@ -14,11 +14,12 @@ edited through a private admin panel, so updating the site never needs a code ch
 - **Content from the database:** pages load their data on the server, so the
   first render already contains the content.
 - **Admin panel at `/admin`:** create, edit, reorder and delete projects,
-  experience entries, skills and profile information.
+  experience entries, courses and certifications (with a "What I learned"
+  note for each), skills and profile information.
 - **Database-enforced access control:** row-level security lets anyone read and
   only the admin role write. A UI check alone would not be enough, so the
   database enforces the rule.
-- **AI assistant:** visitors can ask about experience, projects and skills in
+- **AI assistant:** visitors can ask about experience, courses, projects and skills in
   English or Finnish. The assistant answers only from the site's content and
   can point to the right page. Conversations are not stored.
 - **Editorial, minimal design:** clean grid, monospace details, one accent
@@ -57,7 +58,7 @@ flowchart LR
   subgraph supabase["Supabase via Lovable Cloud"]
     auth["Auth<br/>email + password, sign-up off"]
     subgraph pg["Postgres with Row-Level Security"]
-      content[("projects · experience<br/>skills · site_profile")]
+      content[("projects · experience · courses<br/>skills · site_profile")]
       roles[("user_roles<br/>has_role()")]
       views[("page_views")]
       record["record_page_view()"]
@@ -111,6 +112,16 @@ erDiagram
     text_array skills
     int sort_order
   }
+  courses {
+    uuid id PK
+    text title
+    text provider
+    text completed
+    text credential_url "https only"
+    text learned "What I learned"
+    text_array skills
+    int sort_order
+  }
   skills {
     uuid id PK
     text category
@@ -138,7 +149,8 @@ Access is controlled per table by RLS policies that call `has_role()`.
 - **Security hardening** ([`0005_security_hardening.sql`](drizzle/migrations/0005_security_hardening.sql)):
   - No automatic admin grant on sign-up.
   - Anonymous users cannot call `has_role()`.
-  - Project links must use `https://` (enforced with CHECK constraints).
+  - Project links must use `https://` (enforced with CHECK constraints); so do
+    certificate links in [`0010_courses.sql`](drizzle/migrations/0010_courses.sql).
   - Public sign-up is disabled in the auth settings.
 - **Profile fallback:** [`src/data/profile.ts`](src/data/profile.ts) is used only
   if the `site_profile` row cannot be loaded.

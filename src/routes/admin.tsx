@@ -27,6 +27,7 @@ export const Route = createFileRoute("/admin")({
 const tabs = [
   { to: "/admin", label: "Projects" },
   { to: "/admin/experience", label: "Experience" },
+  { to: "/admin/courses", label: "Courses" },
   { to: "/admin/skills", label: "Skills" },
   { to: "/admin/profile", label: "Profile" },
   { to: "/admin/stats", label: "Stats" },

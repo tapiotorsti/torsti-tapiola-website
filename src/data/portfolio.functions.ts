@@ -21,6 +21,15 @@ export const fetchExperience = createServerFn({ method: "GET" }).handler(async (
   return data;
 });
 
+export const fetchCourses = createServerFn({ method: "GET" }).handler(async () => {
+  const { data, error } = await publicClient()
+    .from("courses")
+    .select("id, title, provider, completed, credential_url, learned, skills, sort_order")
+    .order("sort_order");
+  if (error) throw new Error("Could not load courses");
+  return data;
+});
+
 export const fetchSkills = createServerFn({ method: "GET" }).handler(async () => {
   const { data, error } = await publicClient()
     .from("skills")
