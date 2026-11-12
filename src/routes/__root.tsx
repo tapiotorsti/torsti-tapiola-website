@@ -14,7 +14,8 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader, SiteFooter } from "../components/site/SiteHeader";
 import { MAIN_ID } from "../components/site/primitives";
-import { ChatAssistant } from "../components/site/ChatAssistant";
+import { AssistantProvider } from "../components/site/ChatAssistant";
+import { assistantStatusQuery } from "@/lib/chat/chat.functions";
 import { useLocation } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -83,6 +84,11 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  // Resolve whether the assistant is enabled during SSR, so its header button is in
+  // the first render (no layout shift). A failure just leaves the assistant hidden.
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(assistantStatusQuery).catch(() => undefined);
+  },
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -150,21 +156,22 @@ function RootComponent() {
       {isAdmin ? (
         <Outlet />
       ) : (
-        <div className="flex min-h-screen flex-col">
-          {/* First tab stop: lets keyboard users jump past the header navigation. */}
-          <a
-            href={`#${MAIN_ID}`}
-            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-50 focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:text-primary-foreground"
-          >
-            Skip to content
-          </a>
-          <SiteHeader />
-          <div className="flex-1">
-            <Outlet />
+        <AssistantProvider>
+          <div className="flex min-h-screen flex-col">
+            {/* First tab stop: lets keyboard users jump past the header navigation. */}
+            <a
+              href={`#${MAIN_ID}`}
+              className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-50 focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:text-primary-foreground"
+            >
+              Skip to content
+            </a>
+            <SiteHeader />
+            <div className="flex-1">
+              <Outlet />
+            </div>
+            <SiteFooter />
           </div>
-          <SiteFooter />
-          <ChatAssistant />
-        </div>
+        </AssistantProvider>
       )}
       <Toaster />
     </QueryClientProvider>

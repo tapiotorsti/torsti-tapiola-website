@@ -7,6 +7,7 @@ import { profileQuery } from "@/data";
 import { profile as fallback } from "@/data/profile";
 import { isSafeUrl } from "@/lib/utils";
 import { NewTabHint } from "./primitives";
+import { AssistantHeaderButton } from "./ChatAssistant";
 
 const nav = [
   { to: "/experience", label: "Experience", n: "01" },
@@ -25,46 +26,54 @@ export function SiteHeader() {
           {(profile.name.split(" ")[0] ?? profile.name).toLowerCase()}
           <span className="text-primary">.dev</span>
         </Link>
-        <nav className="hidden gap-8 md:flex">
-          {nav.map((i) => (
-            <Link
-              key={i.to}
-              to={i.to}
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-              activeProps={{ className: "text-foreground" }}
-            >
-              <span aria-hidden="true" className="mr-1.5 font-mono text-[10px] text-primary">
-                {i.n}
-              </span>
-              {i.label}
-            </Link>
-          ))}
-        </nav>
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger className="md:hidden" aria-label="Open menu">
-            <Menu className="h-5 w-5" />
-          </SheetTrigger>
-          <SheetContent side="right" className="w-full border-border bg-background sm:max-w-sm">
-            <SheetTitle className="font-mono text-xs font-normal text-muted-foreground">
-              MENU
-            </SheetTitle>
-            <nav className="mt-10 flex flex-col">
-              {nav.map((i) => (
-                <Link
-                  key={i.to}
-                  to={i.to}
-                  onClick={() => setOpen(false)}
-                  className="flex items-baseline gap-4 border-b border-border py-5 text-2xl"
-                >
-                  <span aria-hidden="true" className="font-mono text-xs text-primary">
-                    {i.n}
-                  </span>
-                  {i.label}
-                </Link>
-              ))}
-            </nav>
-          </SheetContent>
-        </Sheet>
+        <div className="flex items-center gap-8">
+          <nav className="hidden gap-8 md:flex">
+            {nav.map((i) => (
+              <Link
+                key={i.to}
+                to={i.to}
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                activeProps={{ className: "text-foreground" }}
+              >
+                <span aria-hidden="true" className="mr-1.5 font-mono text-[10px] text-primary">
+                  {i.n}
+                </span>
+                {i.label}
+              </Link>
+            ))}
+          </nav>
+          <div className="flex items-center gap-1 md:gap-0">
+            <AssistantHeaderButton />
+            <Sheet open={open} onOpenChange={setOpen}>
+              <SheetTrigger
+                className="inline-flex h-10 w-10 items-center justify-center md:hidden"
+                aria-label="Open menu"
+              >
+                <Menu className="h-5 w-5" aria-hidden="true" />
+              </SheetTrigger>
+              <SheetContent side="right" className="w-full border-border bg-background sm:max-w-sm">
+                <SheetTitle className="font-mono text-xs font-normal text-muted-foreground">
+                  MENU
+                </SheetTitle>
+                <nav className="mt-10 flex flex-col">
+                  {nav.map((i) => (
+                    <Link
+                      key={i.to}
+                      to={i.to}
+                      onClick={() => setOpen(false)}
+                      className="flex items-baseline gap-4 border-b border-border py-5 text-2xl"
+                    >
+                      <span aria-hidden="true" className="font-mono text-xs text-primary">
+                        {i.n}
+                      </span>
+                      {i.label}
+                    </Link>
+                  ))}
+                </nav>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
       </div>
     </header>
   );

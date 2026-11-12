@@ -10,6 +10,7 @@ import {
   siteName,
 } from "@/data";
 import { NewTabHint, Page, Tag } from "@/components/site/primitives";
+import { AssistantPrompt } from "@/components/site/ChatAssistant";
 import { isSafeUrl } from "@/lib/utils";
 import { jsonLd, personJsonLd, seo } from "@/lib/seo";
 
@@ -121,6 +122,7 @@ function Home() {
               </a>
             )}
           </div>
+          <AssistantPrompt />
         </div>
         <dl className="grid grid-cols-3 gap-px self-end border border-border bg-border md:col-span-3 md:grid-cols-1">
           {[

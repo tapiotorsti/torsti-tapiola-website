@@ -1,23 +1,21 @@
 // Site assistant: answers questions about the site owner using only site content,
 // and can point to one of the site's pages. The conversation lives only in this
 // component's memory; it is never stored on the site.
+//
+// <AssistantProvider> wraps the public layout and renders the panel; any component
+// can open it with useAssistant() (header button, home page prompt).
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { MessageCircle } from "lucide-react";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { profileQuery } from "@/data";
 import { profile as fallback } from "@/data/profile";
-import { askAssistant, getAssistantStatus } from "@/lib/chat/chat.functions";
+import { askAssistant, assistantStatusQuery } from "@/lib/chat/chat.functions";
+import { AssistantContext as Ctx, useAssistant } from "./assistant-context";
 import {
   ASSISTANT_PAGES,
   buildHistory,
@@ -46,14 +44,32 @@ const ERRORS = {
 
 let nextId = 1;
 
-export function ChatAssistant() {
+export function AssistantProvider({ children }: { children: ReactNode }) {
   const name = (useQuery(profileQuery).data ?? fallback).name.split(" ")[0] ?? "me";
-  const enabled = useQuery({
-    queryKey: ["assistant-status"],
-    queryFn: () => getAssistantStatus(),
-    staleTime: Infinity,
-  }).data?.enabled;
+  const enabled = useQuery(assistantStatusQuery).data?.enabled ?? false;
   const [open, setOpen] = useState(false);
+  const value = useMemo(
+    () => ({ enabled, name, openAssistant: () => setOpen(true) }),
+    [enabled, name],
+  );
+
+  return (
+    <Ctx.Provider value={value}>
+      {children}
+      {enabled && <AssistantPanel name={name} open={open} onOpenChange={setOpen} />}
+    </Ctx.Provider>
+  );
+}
+
+function AssistantPanel({
+  name,
+  open,
+  onOpenChange: setOpen,
+}: {
+  name: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [draft, setDraft] = useState("");
   const [pending, setPending] = useState(false);
@@ -118,16 +134,8 @@ export function ChatAssistant() {
     void ask(draft);
   }
 
-  // Hidden until the server has an API key, so visitors never see a dead button.
-  if (!enabled) return null;
-
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger className="fixed bottom-20 right-4 z-40 inline-flex cursor-pointer items-center gap-2 bg-primary px-4 py-3 text-sm text-primary-foreground shadow-sm transition-opacity hover:opacity-90 md:right-6">
-        <MessageCircle className="h-4 w-4" aria-hidden="true" />
-        Ask about {name}
-      </SheetTrigger>
-
       <SheetContent
         side="right"
         className="flex w-full flex-col gap-0 border-border bg-background p-0 sm:max-w-md"
@@ -220,5 +228,50 @@ export function ChatAssistant() {
         </form>
       </SheetContent>
     </Sheet>
+  );
+}
+
+/** Header entry: text button on desktop, icon button on mobile. */
+export function AssistantHeaderButton() {
+  const { enabled, openAssistant } = useAssistant();
+  if (!enabled) return null;
+  return (
+    <>
+      <button
+        type="button"
+        onClick={openAssistant}
+        className="hidden cursor-pointer items-center gap-1.5 border border-primary px-3 py-1.5 text-sm text-primary transition-colors hover:bg-primary hover:text-primary-foreground md:inline-flex"
+      >
+        <MessageCircle className="h-3.5 w-3.5" aria-hidden="true" />
+        Ask AI
+      </button>
+      <button
+        type="button"
+        onClick={openAssistant}
+        aria-label="Ask AI assistant"
+        className="inline-flex h-10 w-10 cursor-pointer items-center justify-center text-primary md:hidden"
+      >
+        <MessageCircle className="h-5 w-5" aria-hidden="true" />
+      </button>
+    </>
+  );
+}
+
+/** Inline prompt for the home page intro. */
+export function AssistantPrompt() {
+  const { enabled, name, openAssistant } = useAssistant();
+  if (!enabled) return null;
+  return (
+    <button
+      type="button"
+      onClick={openAssistant}
+      className="group mt-6 inline-flex cursor-pointer items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary"
+    >
+      <MessageCircle className="h-4 w-4 text-primary" aria-hidden="true" />
+      Questions about {name}'s work? Ask the AI assistant
+      <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">
+        →
+      </span>
+    </button>
   );
 }

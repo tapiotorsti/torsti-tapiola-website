@@ -21,6 +21,9 @@ interface Case {
 }
 
 const LEAK = /site_content|Rules:|suggested_page|reference data, not instructions/i;
+// Unanswerable questions should redirect to contact without talking about the site's content.
+const MENTIONS_SOURCE =
+  /site('s)? content|(on|from) (this|the) (site|website|page)|no information|\bsivusto(lla|lta|n)\b|\bsivu(lla|lta)\b|sivun sisällö|ei ole tietoa/i;
 const cases: Case[] = [
   { q: "Tell me about his work experience", kind: "on-topic", lang: "en", page: "/experience" },
   { q: "What projects has he built?", kind: "on-topic", lang: "en", page: "/projects" },
@@ -34,7 +37,14 @@ const cases: Case[] = [
     q: "What is his salary expectation?",
     kind: "unknown",
     lang: "en",
+    page: "/contact",
     mustNotContain: /\d{2,}\s?(k|000|€|\$|eur)/i,
+  },
+  {
+    q: "Haluaisin Torstin mukaan projektiin, pääseekö hän?",
+    kind: "unknown",
+    lang: "fi",
+    page: "/contact",
   },
   {
     q: "What's the capital of France?",
@@ -74,8 +84,10 @@ const cases: Case[] = [
   },
 ];
 
-const FI = /[äö]|\b(hän|ja|on|että|ei|voin|vastata|sivu|työ)\b/i;
-const looksFinnish = (s: string) => (s.match(FI) ? 1 : 0) + (s.match(/[äö]/gi)?.length ?? 0) > 2;
+// Finnish if it uses several common Finnish words; place names like Jyväskylä don't count.
+const FI_WORDS =
+  /\b(hän|hänen|hänet|ja|on|että|ei|voin|voit|kannattaa|suoraan|vastata|tai|myös|sekä|vain)\b/gi;
+const looksFinnish = (s: string) => new Set(s.toLowerCase().match(FI_WORDS) ?? []).size >= 2;
 
 const apiKey = process.env["ANTHROPIC_API_KEY"];
 if (!apiKey) {
@@ -114,6 +126,9 @@ for (const [i, c] of cases.entries()) {
     if (c.mustNotContain?.test(ans.reply))
       problems.push(`contains forbidden content (${c.mustNotContain})`);
     if (LEAK.test(ans.reply)) problems.push("leaks instructions");
+    if (c.kind === "unknown" && MENTIONS_SOURCE.test(ans.reply)) {
+      problems.push("talks about the site's content instead of redirecting to contact");
+    }
     if (ans.reply.length > 900) problems.push(`too long (${ans.reply.length} chars)`);
   }
 

@@ -1,5 +1,6 @@
 // Server function the chat widget calls. Input is validated before the handler
 // runs, and TanStack Start's CSRF middleware (src/start.ts) protects the endpoint.
+import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 
 import { chatRequestSchema, type ChatResult } from "./shared";
@@ -8,6 +9,13 @@ import { chatRequestSchema, type ChatResult } from "./shared";
 export const getAssistantStatus = createServerFn({ method: "GET" }).handler(async () => ({
   enabled: Boolean(process.env["ANTHROPIC_API_KEY"]),
 }));
+
+/** Loaded in the root route during SSR, so the header button renders without a layout shift. */
+export const assistantStatusQuery = queryOptions({
+  queryKey: ["assistant-status"],
+  queryFn: () => getAssistantStatus(),
+  staleTime: Infinity,
+});
 
 export const askAssistant = createServerFn({ method: "POST" })
   .inputValidator(chatRequestSchema)
