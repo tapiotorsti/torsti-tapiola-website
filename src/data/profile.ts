@@ -7,7 +7,7 @@ export const profile: Profile = {
   location: "Jyväskylä, FI",
   status: "",
   years_experience: "4+",
-  email: "torstitapi@outlook.com",
+  email: "hello@torsti.dev",
   socials: [
     { label: "GitHub", href: "https://github.com/tapiotorsti", handle: "@tapiotorsti" },
     { label: "LinkedIn", href: "https://linkedin.com/in/torstitapiola", handle: "in/torstitapiola" },
