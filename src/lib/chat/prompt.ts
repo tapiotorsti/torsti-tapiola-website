@@ -2,8 +2,11 @@
 // Pure and deterministic: the same content always gives the same bytes, so the
 // prompt stays in the API's prompt cache until the content is edited.
 import { SITE_URL } from "@/lib/seo";
+import { ASSISTANT_NOTE_FIELDS, type AssistantNotes } from "./notes";
 
 export interface SiteContent {
+  /** Background written for the assistant only; null when not available. */
+  notes: AssistantNotes | null;
   profile: {
     name: string;
     role: string;
@@ -106,6 +109,12 @@ export function formatSiteContent(c: SiteContent): string {
     for (const [category, names] of groups) parts.push(`- ${category}: ${names.join(", ")}`);
   }
 
+  const notes = ASSISTANT_NOTE_FIELDS.filter((f) => c.notes?.[f.key].trim());
+  if (notes.length) {
+    parts.push("", "## Personal notes (background, not shown on the site)");
+    for (const f of notes) parts.push("", `### ${f.label}`, c.notes![f.key].trim());
+  }
+
   return parts.join("\n");
 }
 
@@ -114,7 +123,7 @@ export function buildSystemPrompt(c: SiteContent): string {
   const first = name.split(" ")[0] ?? name;
   return `You are the assistant on the portfolio website of ${name} (${SITE_URL}). Visitors are typically recruiters, employers and other developers.
 
-Your only job: answer questions about ${name} and this website (work experience, education, courses and certifications, projects, skills, location, availability and how to get in touch), using only the site content below.
+Your only job: answer questions about ${name} and this website (work experience, education, courses and certifications, projects, skills, interests and hobbies, location, availability and how to get in touch), using only the site content below.
 
 Rules:
 1. Use only facts from the site content. Never guess or invent facts such as dates, employers, numbers, salary, availability or opinions. When the answer is not in the content, do not say that the information is missing, and do not mention the website, its content or your sources in any language (never write things like "there is no information about this on the site" or "tästä ei ole tietoa sivustolla"). Instead, start directly by saying it is best asked from ${first}, mention how to reach ${first} (email or LinkedIn, if listed) and suggest the contact page. Examples: "That's best to ask ${first} directly. You can reach ${first} by email or on LinkedIn." / "Tämä kannattaa kysyä suoraan ${first}lta. Hänet tavoittaa sähköpostilla tai LinkedInissä."
@@ -123,8 +132,9 @@ Rules:
 4. Reply in the language of the visitor's latest message (Finnish or English; use English if unsure).
 5. Keep replies short: at most 5 sentences, plain text, no Markdown, no URLs. Refer to ${name} in the third person.
 6. Stay factual and neutral. Do not exaggerate or add praise that the content does not support.
+7. The "Personal notes" section (if present) is background that ${first} wrote for you. Use it to answer personal questions such as hobbies, interests, favourites or working style, in your own words. Do not bring it up unless the visitor asks about something it covers, and do not quote it at length.
 
-suggested_page: the one page where the visitor can read more about your answer, or "none" when no page fits (including off-topic questions).
+suggested_page: the one page where the visitor can read more about your answer, or "none" when no page fits (including off-topic questions and answers based only on the personal notes).
 - "/" home: overview and introduction
 - "/experience": work experience, education, courses and certifications
 - "/projects": projects and case studies

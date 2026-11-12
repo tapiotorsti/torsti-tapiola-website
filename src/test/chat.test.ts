@@ -79,6 +79,14 @@ describe("toSuggestedPage", () => {
 });
 
 const content: SiteContent = {
+  notes: {
+    interests: "Trail running and board games.",
+    favourites: "",
+    work_style: "  ",
+    learning: "",
+    fun_facts: "",
+    other: "",
+  },
   profile: {
     name: "Torsti Tapiola",
     role: "Software Developer",
@@ -178,6 +186,22 @@ describe("buildSystemPrompt", () => {
     expect(text).toContain("Certificate: https://example.com/cert");
     expect(text).toContain("### Untitled course\n");
     expect(text.indexOf("## Education")).toBeLessThan(text.indexOf("## Courses"));
+  });
+
+  it("adds only the filled personal note sections", () => {
+    const text = formatSiteContent(content);
+    expect(text).toContain("## Personal notes");
+    expect(text).toContain("### Hobbies & interests\nTrail running and board games.");
+    expect(text).not.toContain("### Favourites");
+    expect(text).not.toContain("### Working style");
+  });
+
+  it("leaves out the personal notes section when there are no notes", () => {
+    expect(formatSiteContent({ ...content, notes: null })).not.toContain("Personal notes");
+    const empty = Object.fromEntries(Object.keys(content.notes!).map((k) => [k, ""]));
+    expect(
+      formatSiteContent({ ...content, notes: empty as SiteContent["notes"] }),
+    ).not.toContain("Personal notes");
   });
 });
 

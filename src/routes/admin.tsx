@@ -30,6 +30,7 @@ const tabs = [
   { to: "/admin/courses", label: "Courses" },
   { to: "/admin/skills", label: "Skills" },
   { to: "/admin/profile", label: "Profile" },
+  { to: "/admin/assistant", label: "Assistant" },
   { to: "/admin/stats", label: "Stats" },
 ] as const;
 

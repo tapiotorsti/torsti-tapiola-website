@@ -150,7 +150,7 @@ Access is controlled per table by RLS policies that call `has_role()`.
   - No automatic admin grant on sign-up.
   - Anonymous users cannot call `has_role()`.
   - Project links must use `https://` (enforced with CHECK constraints); so do
-    certificate links in [`0010_courses.sql`](drizzle/migrations/0010_courses.sql).
+    certificate links in [`0010_apply_courses.sql`](drizzle/migrations/0010_apply_courses.sql).
   - Public sign-up is disabled in the auth settings.
 - **Profile fallback:** [`src/data/profile.ts`](src/data/profile.ts) is used only
   if the `site_profile` row cannot be loaded.

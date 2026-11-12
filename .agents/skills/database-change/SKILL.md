@@ -21,7 +21,10 @@ numbered SQL files in `drizzle/migrations/`. Applied migrations are never edited
   migrator breaks it: with `0008_chat_rate_limit` Lovable had to comment the file
   out and re-apply the same SQL as `0009`. Add only the `.sql` file and ask the
   owner to have Lovable apply it ("Apply the database migration
-  drizzle/migrations/NNNN_….sql"). Lovable then registers it.
+  drizzle/migrations/NNNN_….sql"). Lovable then registers it, sometimes as a
+  new file with the same SQL (e.g. `0010_apply_courses.sql`). In that case,
+  delete your unregistered original so a fresh replay does not create the
+  table twice, and number your next migration after Lovable's.
 
 ## 1. Write the migration
 
@@ -37,6 +40,9 @@ CREATE TABLE public.talks (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
+-- Supabase's default privileges grant ALL (including TRUNCATE, which ignores
+-- RLS) on new tables to anon and authenticated. Revoke first, then grant.
+REVOKE ALL ON public.talks FROM PUBLIC, anon, authenticated;
 GRANT SELECT ON public.talks TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.talks TO authenticated;
 GRANT ALL ON public.talks TO service_role;
@@ -51,7 +57,8 @@ CREATE POLICY "Admins manage" ON public.talks
 ```
 
 Rules:
-- Every table gets RLS, explicit grants and the `"Admins manage"` policy.
+- Every table gets RLS, `REVOKE ALL … FROM PUBLIC, anon, authenticated`
+  followed by explicit grants, and the `"Admins manage"` policy.
   Add `"Public read"` only for data the public site shows.
 - New columns on existing tables need a `DEFAULT` or must be nullable, so
   existing rows still work.
