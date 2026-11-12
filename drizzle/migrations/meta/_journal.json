@@ -64,6 +64,13 @@
       "when": 1794556800000,
       "tag": "0008_chat_rate_limit",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794556800001,
+      "tag": "0009_chat_rate_limit",
+      "breakpoints": true
     }
   ]
 }
